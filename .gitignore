@@ -1,0 +1,8 @@
+venv/
+.venv/
+__pycache__
+convertnumbers.py
+output.txt
+phone.txt
+user.py
+user33/
