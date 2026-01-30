@@ -16,6 +16,11 @@ def sign_up():
 
     return f"Welcome to our app, {first_name} {last_name}"
 
+@app.route('/sign-up', methods=['GET'])
+def show_sign_up_form():
+    return render_template('sign-up.html')
+    
+
 #@app.route('/<language>/about-us/')
 #def about_us(language):
    # if language =='en':
