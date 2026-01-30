@@ -10,10 +10,10 @@ def index():
 
 @app.route('/sign-up', methods=['POST'])
 def sign_up():
-    first_name = request.form['firstname']
-    last_name = request.form['lastname']
+    first_name = request.form['firstName']
+    last_name = request.form['lastName']
     email = request.form['email']
-    
+
     return f"Welcome to our app, {first_name} {last_name}"
 
 #@app.route('/<language>/about-us/')
