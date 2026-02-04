@@ -1,7 +1,8 @@
 import os
+import sqlite3 
 
 from flask import Flask, redirect, render_template, request, url_for
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from .db import get_db, init_app
 from .models import User
@@ -52,13 +53,41 @@ def sign_up():
 
     if error is None:
         hashed_password = generate_password_hash(user.password)
-        database.execute(
-            'INSERT INTO user (first_name, last_name, email, password) VALUES (?, ?, ?, ?)',((user.first_name, user.last_name, user.email, hashed_password)),
-        )
-        database.commit()
-        return redirect(url_for('show_login_form'))
+       
+        try:       
+            database.execute(
+                'INSERT INTO user (first_name, last_name, email, password) VALUES (?, ?, ?, ?)',((user.first_name, user.last_name, user.email, hashed_password)),
+            )
+            database.commit()
+        except sqlite3.IntegrityError: 
+            error= "This email already exists"
+        else:
+            return redirect(url_for('show_login_form'))
+    
+    return error, 400
+
+@app.post('/login')
+def login():
+    email= request.form['email']
+    password= request.form['password']
+    database= get_db()
+    error= None
+
+    user= database.execute(
+        'SELECT * FROM user WHERE email=?', 
+        (email,)
+    ).fetchone()
+
+    if user is None:
+        error= "incorrect email"
+    elif not check_password_hash(user['password'], password):
+        error= "password don't match"
+    
+    if error is None:
+        return redirect(url_for('index'))
     else:
-        return error, 400
+        return error, 401
+
 
 @app.route('/sign-up', methods=['GET'])
 def show_sign_up_form():
