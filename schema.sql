@@ -6,6 +6,6 @@ CREATE TABLE user (
   last_name TEXT NOT NULL,
   email TEXT NOT NULL,
   password TEXT NOT NULL,
-  date_of_birth TIMESTAMP NOT NULL,
+  date_of_birth TIMESTAMP,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
