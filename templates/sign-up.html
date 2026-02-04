@@ -6,6 +6,7 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     </head>
     <body>
+    
         <div>
             <form action="/sign-up" method="post">
                 <label for="firstname">First Name</label>
@@ -14,8 +15,7 @@
                 <input type="text" id="lastName" name="lastName"><br>
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email"><br><br>
-
-                <input type="submit" value="Sign up">
+                <input type="submit" id="sign-up" value="Sign up">
             </form>
         </div>
     </body>

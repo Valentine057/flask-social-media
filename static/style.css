@@ -1,8 +1,11 @@
 body {
-    background-color: aquamarine;
+    background-image: url("..");
     display: flex;
     justify-content: center;
+    align-items: center;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    height: 100vh;
+    border: 3px solid black;
 }
 
 div {
@@ -10,8 +13,17 @@ div {
     border-style: 3px double grey;
     padding: auto 5vw;
     text-align: center;
+    border: 3px solid black;
+    height: 50vh;
+    width: 700px;
+    border-radius: 10px;
 }
 
 form input[type=text], form input[type=email] {
     margin-bottom: 1rem;
+}
+
+#sign-up {
+    background-color: black;
+    color: 
 }
