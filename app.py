@@ -1,7 +1,11 @@
 import os
 import sqlite3 
 
+<<<<<<< HEAD
 from flask import Flask, redirect, render_template, request, url_for, session
+=======
+from flask import Flask, session, redirect, render_template, request, url_for
+>>>>>>> 35ae05efb9151ab6a34459227846f7dcaa7c282b
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from .db import get_db, init_app
@@ -30,6 +34,7 @@ init_app(app)
 @app.route('/')
 def index():
     database = get_db()
+<<<<<<< HEAD
     user= None
 
     # if "email" in session:
@@ -41,6 +46,17 @@ def index():
     # else:
     #     return "Not logged in"
     return render_template('index.html')
+=======
+    user=None
+    
+    if "email" in session:
+        user= database.execute(
+            'SELECT * FROM user WHERE email=?', 
+            (session['email'],)
+        ).fetchone()
+        
+    return render_template('index.html', current_user=user)
+>>>>>>> 35ae05efb9151ab6a34459227846f7dcaa7c282b
 
 
 @app.route('/sign-up', methods=['POST'])
@@ -96,7 +112,11 @@ def login():
         error= "password don't match"
     
     if error is None:
+<<<<<<< HEAD
         session["email"]= user['email']
+=======
+        session["email"]=user['email']
+>>>>>>> 35ae05efb9151ab6a34459227846f7dcaa7c282b
         return redirect(url_for('index'))
     else:
         return error, 401
