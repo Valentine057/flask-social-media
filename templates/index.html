@@ -7,8 +7,12 @@
     </head>
     <body>
         <div>
+            {% if current_user == None %}
             <h1>Landing page</h1>
             <a href="{{ url_for('show_sign_up_form') }}">Sign up</a>
+            {% else %}
+            <h1>{{ current_user["first_name"] }}, welcome to our social media application</h1>
+            {% endif %}
         </div>
     </body>
 </html>
