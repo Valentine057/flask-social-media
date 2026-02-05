@@ -5,16 +5,22 @@
         <title>Flask App | Login</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     </head>
-    <body>
-        <div>
+    <body id="login_body">
+        <div class="login">
             <form action="/login" method="post">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email"><br>
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password"><br><br>
+               <div id="element">
+                <div id="">
+                    <label for="email">Email</label><br>
+                    <input type="email" id="email" name="email">
+               </div> 
+                <div>
+                    <label for="password">Password</label><br>
+                    <input type="password" id="password" name="password"><br><br>
+                </div>
+               </div>
 
 
-                <input type="submit" value="Login">
+                <input type="submit" id="butt1" value="Login">
             </form>
         </div>
     </body>

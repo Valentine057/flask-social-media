@@ -1,29 +1,128 @@
-body {
-    background-image: url("..");
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    height: 100vh;
-    border: 3px solid black;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-div {
-    background-color: white;
-    border-style: 3px double grey;
-    padding: auto 5vw;
+body {
+    background: url("../images/oranzhevyi-fon-linii-background-geometriia-vektor.jpg") center/cover no-repeat fixed;
+}
+
+
+#index_body {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: start;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    height: 100vh;
+}
+
+.landing {
+    display: flex;
+    flex-direction: row;
+    background-color: black;
+    justify-items: flex-start;
     text-align: center;
-    border: 3px solid black;
-    height: 50vh;
-    width: 700px;
-    border-radius: 10px;
+    color: white;
+    height: 10vh;
+    width: 100%;
+}
+
+.landing h1 {
+    margin-right: 75%;
 }
 
 form input[type=text], form input[type=email] {
     margin-bottom: 1rem;
 }
 
-#sign-up {
-    background-color: black;
-    color: 
+label {
+    font-size: 25px;
+}
+
+input {
+    border-radius: 5px;
+    padding: 5px 5px;
+    font-size: 20px;
+}
+
+#butt1 {
+    background-color: #785238;
+    padding: 3px 20px;
+    height: 30px;
+    margin: 15px;
+    border-radius: 10px;
+    border: none;
+}
+
+#butt1 a {
+    text-decoration: none;
+    color: white;
+}
+
+
+#login_body {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    height: 100vh;
+}
+
+.login {
+    border: 3px solid black;
+    padding: 30px 20px;
+    width: 50%;
+    height: 30vh;
+    border-radius: 20px;
+}
+
+
+#element {
+    display: flex;
+    flex-direction: row;
+}
+
+#element > div {
+    margin-right: 100px;
+}
+
+
+
+
+#sign-up-body {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    height: 100vh;
+}
+
+#Sign{
+    display: flex;
+    flex-direction: column;
+    border: 2px solid black;
+    padding: 30px 20px;
+    border-radius: 20px;
+}
+
+.sign_class1 {
+    display: flex;
+    flex-direction: row;
+}
+
+#sign1 {
+    margin-right: 50px;
+}
+
+#sign3 {
+    margin-right: 50px;
+}
+
+.sign_class2 {
+    display: flex;
+    flex-direction: row;
 }
