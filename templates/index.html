@@ -1,20 +1,17 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>Flask App</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    </head>
-    <body>
-        <div class="landing">
-            {% if current_user == None %}
-            <h1>Landing page</h1>
-            <button id="butt1">
-                <a href="{{ url_for('show_sign_up_form') }}">Sign up</a>
-            </button>
-            {% else %}
-            <h1 id="user">{{ current_user["first_name"] }}, welcome to our social media application</h1>
-            {% endif %}
-        </div>
-    </body>
-</html>
+{% extends '_base.html' %}
+
+{% block page_title %}Welcome{% endblock %}
+
+{% block page_body %}
+<div class="landing">
+    {% if current_user == None %}
+    <h1>Landing page</h1>
+    <button id="butt1">
+        <a href="{{ url_for('show_sign_up_form') }}">Sign up</a>
+    </button>
+    {% else %}
+    <h1>{{ current_user["first_name"] }}, welcome to our social media application</h1>
+    {% endif %}
+</div>
+{% endblock %}
+

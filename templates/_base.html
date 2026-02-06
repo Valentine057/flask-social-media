@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>{% block page_title %}{% endblock %} | Social Media</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body {% block body_attrs %}{% endblock %}>
+    {% block page_body %}
+        {% block centralized_form %}
+        {% endblock %}
+    {% endblock %}
+    </body>
+</html>

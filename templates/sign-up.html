@@ -1,37 +1,35 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>Flask App</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    </head>
-    <body id="sign-up-body">
-        <div id="Sign">
-            <form action="/sign-up" method="post">
-              <div class="sign_class1">
-                <div id="sign1">
-                    <label for="firstname">First Name</label><br>
-                    <input type="text" id="firstName" name="firstName" required><br>
-               </div> 
-                <div id="sign2">
-                    <label for="lastname">Last Name</label><br>
-                    <input type="text" id="lastName" name="lastName"><br>
-                </div>
-               </div> 
-               <div class="sign_class2">
-                 <div id="sign3">
-                    <label for="email">Email</label><br>
-                    <input type="email" id="email" name="email"><br>
-                </div>
-               <div id="sign4">
-                 <label for="password">Password</label><br>
-                <input type="password" id="password" name="password"><br><br>
-               </div>
-               </div>
+{% extends '_base.html' %}
 
+{% block page_title %}Sign up{% endblock %}
 
-                <input type="submit" id="butt1" value="Sign up">
-            </form>
+{% block body_attrs %}class="centralized_form_container"{% endblock %}
+
+{% block centralized_form %}
+<div id="Sign">
+    <form action="/sign-up" method="post">
+        <div class="sign_class1">
+        <div id="sign1">
+            <label for="firstname">First Name</label><br>
+            <input type="text" id="firstName" name="firstName" required><br>
+        </div> 
+        <div id="sign2">
+            <label for="lastname">Last Name</label><br>
+            <input type="text" id="lastName" name="lastName"><br>
         </div>
-    </body>
-</html>
+        </div> 
+        <div class="sign_class2">
+            <div id="sign3">
+            <label for="email">Email</label><br>
+            <input type="email" id="email" name="email"><br>
+        </div>
+        <div id="sign4">
+            <label for="password">Password</label><br>
+        <input type="password" id="password" name="password"><br><br>
+        </div>
+        </div>
+
+
+        <input type="submit" id="butt1" value="Sign up">
+    </form>
+</div>
+{% endblock %}

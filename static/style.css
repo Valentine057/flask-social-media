@@ -5,17 +5,16 @@
 }
 
 body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    height: 100vh;
     background: url("images/oranzhevyi-fon-linii-background-geometriia-vektor.jpg") center/cover no-repeat fixed;
 }
 
-
-#index_body {
+.centralized_form_container {
     display: flex;
     flex-direction: row;
-    justify-content: start;
-    align-items: start;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    height: 100vh;
+    justify-content: center;
+    align-items: center;
 }
 
 .landing {
@@ -67,16 +66,6 @@ input {
     color: white;
 }
 
-
-#login_body {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    height: 100vh;
-}
-
 .login {
     background-color: black;
     padding: 30px 20px;
@@ -94,18 +83,6 @@ input {
 
 #element > div {
     margin-right: 100px;
-}
-
-
-
-
-#sign-up-body {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    height: 100vh;
 }
 
 #Sign{
