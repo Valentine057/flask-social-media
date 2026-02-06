@@ -5,7 +5,7 @@
 }
 
 body {
-    background: url("../images/oranzhevyi-fon-linii-background-geometriia-vektor.jpg") center/cover no-repeat fixed;
+    background: url("images/oranzhevyi-fon-linii-background-geometriia-vektor.jpg") center/cover no-repeat fixed;
 }
 
 
@@ -33,6 +33,10 @@ body {
     margin-right: 75%;
 }
 
+#user {
+    height: 100vh;
+}
+
 form input[type=text], form input[type=email] {
     margin-bottom: 1rem;
 }
@@ -45,6 +49,7 @@ input {
     border-radius: 5px;
     padding: 5px 5px;
     font-size: 20px;
+    border: none;
 }
 
 #butt1 {
@@ -52,6 +57,7 @@ input {
     padding: 3px 20px;
     height: 30px;
     margin: 15px;
+    color: white;
     border-radius: 10px;
     border: none;
 }
@@ -72,8 +78,9 @@ input {
 }
 
 .login {
-    border: 3px solid black;
+    background-color: black;
     padding: 30px 20px;
+    color: white;
     width: 50%;
     height: 30vh;
     border-radius: 20px;
@@ -104,8 +111,9 @@ input {
 #Sign{
     display: flex;
     flex-direction: column;
-    border: 2px solid black;
     padding: 30px 20px;
+    background-color: black;
+    color: white;
     border-radius: 20px;
 }
 

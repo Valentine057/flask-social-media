@@ -13,7 +13,7 @@
                 <a href="{{ url_for('show_sign_up_form') }}">Sign up</a>
             </button>
             {% else %}
-            <h1>{{ current_user["first_name"] }}, welcome to our social media application</h1>
+            <h1 id="user">{{ current_user["first_name"] }}, welcome to our social media application</h1>
             {% endif %}
         </div>
     </body>
