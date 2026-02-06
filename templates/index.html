@@ -5,21 +5,16 @@
         <title>Flask App</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     </head>
-<<<<<<< HEAD
-    <body id="index_body">
-        <div class="landing">
-            <h1>Landing page</h1>
-            <button id="butt1"><a href="{{ url_for('show_sign_up_form') }}">Sign up</a></button>
-=======
     <body>
-        <div>
+        <div class="landing">
             {% if current_user == None %}
             <h1>Landing page</h1>
-            <a href="{{ url_for('show_sign_up_form') }}">Sign up</a>
+            <button id="butt1">
+                <a href="{{ url_for('show_sign_up_form') }}">Sign up</a>
+            </button>
             {% else %}
             <h1>{{ current_user["first_name"] }}, welcome to our social media application</h1>
             {% endif %}
->>>>>>> 35ae05efb9151ab6a34459227846f7dcaa7c282b
         </div>
     </body>
 </html>
