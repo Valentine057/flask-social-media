@@ -2,16 +2,15 @@
 
 {% block page_title %}Welcome{% endblock %}
 
-{% block page_body %}
-<div class="landing">
-    {% if current_user == None %}
-    <h1>Landing page</h1>
-    <button id="butt1">
-        <a href="{{ url_for('show_sign_up_form') }}">Sign up</a>
-    </button>
+{% block header_items %}
+    {% if current_user %}
+        <span class="header_text">{{ current_user["first_name"] | capitalize }}</span>
     {% else %}
-    <h1>{{ current_user["first_name"] }}, welcome to our social media application</h1>
+        <button class="header_button">
+            <a href="{{ url_for('show_sign_up_form') }}">Sign up</a>
+        </button>
+        <button class="header_button">
+            <a href="{{ url_for('show_login_form') }}">Login</a>
+        </button>
     {% endif %}
-</div>
 {% endblock %}
-

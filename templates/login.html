@@ -4,6 +4,12 @@
 
 {% block body_attrs %}class="centralized_form_container"{% endblock %}
 
+{% block header_items %}
+    <button class="header_button">
+        <a href="{{ url_for('show_sign_up_form') }}">Sign up</a>
+    </button>
+{% endblock %}
+
 {% block centralized_form %}
 <div class="login">
     <form action="/login" method="post">

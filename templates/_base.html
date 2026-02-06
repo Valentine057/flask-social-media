@@ -7,6 +7,14 @@
     </head>
     <body {% block body_attrs %}{% endblock %}>
     {% block page_body %}
+        <header id="page_header">
+            <div>
+                <img src="{{ url_for('static', filename='images/logo.png' )}}" width="50" height="50" />
+            </div>
+            <div>
+                {% block header_items %}{% endblock %}
+            </div>
+        </header>
         {% block centralized_form %}
         {% endblock %}
     {% endblock %}
