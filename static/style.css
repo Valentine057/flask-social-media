@@ -20,16 +20,29 @@ body {
 .landing {
     display: flex;
     flex-direction: row;
-    background-color: black;
+    background-color: burlywood;
     justify-items: flex-start;
     text-align: center;
     color: white;
-    height: 10vh;
+    height: 20vh;
     width: 100%;
 }
 
-.landing h1 {
-    margin-right: 75%;
+#contain {
+    display: flex;
+    flex-direction: row;
+    width: 80%;
+}
+
+#contain h1 {
+    margin-top: 30px;
+}
+
+.landing img {
+    height: 80%;
+    margin-right: 10px;
+    margin-left: 10px;
+    margin-top: 5px;
 }
 
 #user {
@@ -52,10 +65,11 @@ input {
 }
 
 #butt1 {
-    background-color: #785238;
+    background-color: black;
     padding: 3px 20px;
     height: 30px;
-    margin: 15px;
+    margin-right: 30px;
+    margin-top: 20px;
     color: white;
     border-radius: 10px;
     border: none;

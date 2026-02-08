@@ -5,10 +5,16 @@
 {% block page_body %}
 <div class="landing">
     {% if current_user == None %}
-    <h1>Landing page</h1>
+     <div id="contain">
+        <img src="{{ url_for('static', filename='images/8b0928b1576ecea3056fb1d8b55ae269.jpg') }}">
+        <h1>SOSHACk</h1>  
+    </div>
     <button id="butt1">
         <a href="{{ url_for('show_sign_up_form') }}">Sign up</a>
     </button>
+
+    <input type="submit" id="butt1" value="Log in">
+     
     {% else %}
     <h1>{{ current_user["first_name"] }}, welcome to our social media application</h1>
     {% endif %}
