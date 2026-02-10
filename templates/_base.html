@@ -2,14 +2,21 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>{% block page_title %}{% endblock %} | Social Media</title>
+        <title>{% block page_title %}{% endblock %} | SOSHACK</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     </head>
     <body {% block body_attrs %}{% endblock %}>
-    {% block page_body %}
-        {% block centralized_form %}
+        {% block banner %}
+        <div class="landing">
+      <div id="contain">
+        <img src="{{ url_for('static', filename='images/8b0928b1576ecea3056fb1d8b55ae269.jpg') }}">
+        <h1>SOSHACk</h1>  
+    </div>
         {% endblock %}
-    {% endblock %}
+        {% block page_body %}
+            {% block centralized_form %}
+            {% endblock %}
+        {% endblock %}
     
     </body>
 </html>
