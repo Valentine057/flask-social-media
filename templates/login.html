@@ -5,29 +5,48 @@
 {% block body_attrs %}class="centralized_form_container"{% endblock %}
 
 {% block centralized_form %}
-    <div class="landing">
-        <div id="contain">
-        <img src="{{ url_for('static', filename='images/8b0928b1576ecea3056fb1d8b55ae269.jpg') }}">
-        <h1>SOSHACK</h1>  
-    </div>
+<div id="colomn">
+     <div id="head">
+         <div class="landing">
+    <div id="contain">
+     <img src="{{ url_for('static', filename='images/8b0928b1576ecea3056fb1d8b55ae269.jpg') }}">
+        <h1>SOSHACk</h1>
+</div>
+<div>
+        <button id="butt1">
+            <a href="{{ url_for('show_sign_up_form') }}">Sign up</a>
+        </button>
+</div>
+</div>
     </div>
   
-
 <div class="login">
     <form action="/login" method="post">
         <div id="element">
-        <div id="">
+              <div id="contains"> 
+                <div id="write_up">
+                    <img src="{{ url_for('static', filename='images/8b0928b1576ecea3056fb1d8b55ae269.jpg') }}">
+                    <h2>SOSHACk |</h2><h4>Log in</h4>
+                </div>  
+             <h5>Log into your soshack account to enjoy latest updates and chat with friends and loved ones</h5>
+        </div>
+        <div id="elementals">
+             <div>
             <label for="email">Email</label><br>
             <input type="email" id="email" name="email">
         </div> 
         <div>
             <label for="password">Password</label><br>
-            <input type="password" id="password" name="password"><br><br>
+            <input type="password" id="password" name="password"><br>
         </div>
+        
+        <input type="submit" id="butt1" value="Log in">
+
+        </div>
+       
         </div>
 
-
-        <input type="submit" id="butt1" value="Login">
     </form>
+</div>
 </div>
 {% endblock %}
