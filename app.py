@@ -4,7 +4,7 @@ import sqlite3
 from flask import Flask, session, redirect, render_template, request, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from .db import get_db, init_app
+from .db import init_db, db_session
 from .models import User
 
 
@@ -25,7 +25,8 @@ app.config.from_pyfile('config.py', silent=True)
 os.makedirs(app.instance_path, exist_ok=True)
 
 # configure the database initialization and teardown
-init_app(app)
+app.cli.add_command(init_db)
+app.teardown_appcontext()
 
 @app.route('/')
 def index():
