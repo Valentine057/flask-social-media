@@ -4,7 +4,7 @@ import sqlite3
 from flask import Flask, session, redirect, render_template, request, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from .db import init_db, db_session
+from .db import init_db, db, close_db
 from .models import User
 
 
@@ -12,32 +12,28 @@ full_project_path = os.path.dirname(os.path.realpath(__file__))
 
 # create and configure the app
 app = Flask(__name__, instance_path=full_project_path)
-app.config.from_mapping(
-    SECRET_KEY='dev',
-    DATABASE=os.path.join(app.instance_path, 'db.sqlite'),
-)
-app.app_context()
 
 # load the instance config
 app.config.from_pyfile('config.py', silent=True)
+app.app_context()
 
 # ensure the instance folder exists
 os.makedirs(app.instance_path, exist_ok=True)
 
 # configure the database initialization and teardown
+db.init_app(app)
 app.cli.add_command(init_db)
-app.teardown_appcontext()
+app.teardown_appcontext(close_db)
+
 
 @app.route('/')
 def index():
-    database = get_db()
     user=None
     
     if "email" in session:
-        user= database.execute(
-            'SELECT * FROM user WHERE email=?', 
-            (session['email'],)
-        ).fetchone()
+        user = db.session.execute(db.select(User).filter_by(email=session["email"])).fetchone()
+        # This is another way to query a user
+        # user= User.query.filter(User.email == session["email"]).first() 
         
     return render_template('index.html', current_user=user)
 
@@ -50,7 +46,6 @@ def sign_up():
         request.form['email'],
         request.form['password'],
     )
-    database = get_db()
     error = None
 
     if not user.first_name:
@@ -63,13 +58,11 @@ def sign_up():
         error = 'Please choose a password'
 
     if error is None:
-        hashed_password = generate_password_hash(user.password)
+        user.password = generate_password_hash(user.password)
        
         try:       
-            database.execute(
-                'INSERT INTO user (first_name, last_name, email, password) VALUES (?, ?, ?, ?)',((user.first_name, user.last_name, user.email, hashed_password)),
-            )
-            database.commit()
+            db.session.add(user)
+            db.session.commit()
         except sqlite3.IntegrityError: 
             error= "This email already exists"
         else:
@@ -81,21 +74,17 @@ def sign_up():
 def login():
     email= request.form['email']
     password= request.form['password']
-    database= get_db()
     error= None
 
-    user= database.execute(
-        'SELECT * FROM user WHERE email=?', 
-        (email,)
-    ).fetchone()
+    user = db.session.execute(db.select(User).filter_by(email=email)).fetchone()
 
     if user is None:
         error= "incorrect email"
-    elif not check_password_hash(user['password'], password):
+    elif not check_password_hash(user["password"], password):
         error= "password don't match"
     
     if error is None:
-        session["email"]=user['email']
+        session["email"]=user.email
         return redirect(url_for('index'))
     else:
         return error, 401

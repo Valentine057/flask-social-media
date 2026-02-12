@@ -1,10 +1,10 @@
 from sqlalchemy import Column, Integer, String, Date, TIMESTAMP
 from sqlalchemy.sql import func
 
-from .db import DbTableBase
+from .db import db
 
 
-class User(DbTableBase):
+class User(db.Model):
     __tablename__ = "user"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -25,3 +25,6 @@ class User(DbTableBase):
     
     def __str__(self):
         return f"<User {self.first_name} {self.last_name}>"
+    
+    def __getitem__(self, name):
+        return getattr(self, name)
