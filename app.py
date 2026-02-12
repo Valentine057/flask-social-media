@@ -31,7 +31,7 @@ def index():
     user=None
     
     if "email" in session:
-        user = db.session.execute(db.select(User).filter_by(email=session["email"])).fetchone()
+        user = db.session.execute(db.select(User).filter_by(email=session["email"])).scalar_one()
         # This is another way to query a user
         # user= User.query.filter(User.email == session["email"]).first() 
         
@@ -76,7 +76,7 @@ def login():
     password= request.form['password']
     error= None
 
-    user = db.session.execute(db.select(User).filter_by(email=email)).fetchone()
+    user = db.session.execute(db.select(User).filter_by(email=email)).scalar_one()
 
     if user is None:
         error= "incorrect email"
