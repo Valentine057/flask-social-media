@@ -14,3 +14,37 @@
         </button>
     {% endif %}
 {% endblock %}
+
+{% block page_body %}
+{{ super() }}
+{% if current_user %}
+<main id="posts_container">
+    <form action="/create-post" method="post">
+        <textarea id="post_caption" name="postCaption" rows="3" cols="50">
+            Create a new post
+        </textarea>
+
+        <input type="submit" id="post_button" value="Post">
+    </form>
+
+    <div id="post_list_container">
+        {% for post in current_user["posts"] %}
+        <div class="post_card">
+            <div class="post_card_banner">
+                <span>{{ post["user"]["first_name"] | capitalize }}&nbsp;{{ post["user"]["last_name"] | capitalize }}</span>
+                <span>{{ post["created_at"].strftime("%Y-%m-%d") }}</span>
+            </div>
+            <div class="post_card_body">
+                <p>{{ post["caption"] }}</p>
+            </div>
+            <div class="post_card_footer">
+                <span>{{ post["likes"] }} likes, {{ post["views"] }} views</span>
+            </div>
+        </div>
+        {% else %}
+            <p>No posts have been made yet.</p>
+        {% endfor %}
+    </div>
+</main>
+{% endif %}
+{% endblock %}

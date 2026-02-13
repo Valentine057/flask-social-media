@@ -5,7 +5,7 @@ from flask import Flask, session, redirect, render_template, request, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from .db import init_db, db, close_db
-from .models import User
+from .models import User, Post
 
 
 full_project_path = os.path.dirname(os.path.realpath(__file__))
@@ -33,8 +33,9 @@ def index():
     if "email" in session:
         user = db.session.execute(db.select(User).filter_by(email=session["email"])).scalar_one()
         # This is another way to query a user
-        # user= User.query.filter(User.email == session["email"]).first() 
-        
+        # user= User.query.filter(User.email == session["email"]).first()
+        print(user['posts'])
+
     return render_template('index.html', current_user=user)
 
 
@@ -94,9 +95,30 @@ def login():
 def show_sign_up_form():
     return render_template('sign-up.html')
 
+
 @app.get('/login')
 def show_login_form():
     return render_template('login.html')
+
+
+@app.post('/create-post')
+def create_post():
+    caption = request.form['postCaption']
+    error = None
+    user = None
+    
+    if 'email' in session:
+        user = db.session.execute(db.select(User).filter_by(email=session['email'])).scalar_one()
+        post = Post(user.id, caption)
+        db.session.add(post)
+        db.session.commit()
+    else:
+        error = 'User not logged in'
+ 
+    if error is None:
+        return redirect(url_for('index'))
+    else:
+        return error, 401
 
 
 # these lines indicates that we are in  "development mode"
