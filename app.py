@@ -1,10 +1,10 @@
 import os
 import sqlite3 
 
-from flask import Flask, session, redirect, render_template, request, url_for
+from flask import Flask, session, redirect, render_template, request, url_for, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from .db import init_db, db, close_db
+from .db import init_db, db, close_db 
 from .models import User, Post
 
 
@@ -28,15 +28,16 @@ app.teardown_appcontext(close_db)
 
 @app.route('/')
 def index():
-    user=None
+    user = None
+    posts = None
     
     if "email" in session:
         user = db.session.execute(db.select(User).filter_by(email=session["email"])).scalar_one()
+        posts = db.session.execute(db.select(Post).order_by(Post.created_at)).scalars()
         # This is another way to query a user
         # user= User.query.filter(User.email == session["email"]).first()
-        print(user['posts'])
 
-    return render_template('index.html', current_user=user)
+    return render_template('index.html', current_user=user, all_posts=posts)
 
 
 @app.route('/sign-up', methods=['POST'])
@@ -119,6 +120,26 @@ def create_post():
         return redirect(url_for('index'))
     else:
         return error, 401
+
+
+@app.get('/api/post/<int:post_id>/like')
+def like_post(post_id):
+    """API: Increment likes for a post and return the new like count.
+
+    Returns JSON: {"id": <post_id>, "likes": <new_count>} or 404 if not found.
+    This endpoint uses GET to keep the frontend call simple (no CSRF handling shown
+    elsewhere in the app). If you add authentication later, consider POST and CSRF.
+    """
+    post = db.session.execute(db.select(Post).filter_by(id=post_id)).scalar_one_or_none()
+    if post is None:
+        return jsonify({"error": "Post not found"}), 404
+
+    # Ensure likes is an int and increment
+    post.likes = (post.likes or 0) + 1
+    db.session.add(post)
+    db.session.commit()
+
+    return jsonify({"id": post.id, "likes": post.likes})
 
 
 # these lines indicates that we are in  "development mode"

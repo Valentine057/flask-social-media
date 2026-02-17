@@ -28,10 +28,11 @@
     </form>
 
     <div id="post_list_container">
-        {% for post in current_user["posts"] %}
+        {% for post in all_posts %}
         <div class="post_card">
             <div class="post_card_banner">
-                <span>{{ post["user"]["first_name"] | capitalize }}&nbsp;{{ post["user"]["last_name"] | capitalize }}</span>
+                <button class="like-button" data-post-id="{{ post['id'] }}" aria-label="Like post">❤</button>
+                <span class="likes-text"><span class="likes-count" id="likes-{{ post['id'] }}">{{ post["likes"] }}</span> likes, {{ post["views"] }} views</span>
                 <span>{{ post["created_at"].strftime("%Y-%m-%d") }}</span>
             </div>
             <div class="post_card_body">
@@ -46,5 +47,34 @@
         {% endfor %}
     </div>
 </main>
+
+<script>
+// Attach click handlers to like buttons and call the backend API to increment likes.
+document.addEventListener('DOMContentLoaded', function () {
+    function onLikeClick(e) {
+        const btn = e.currentTarget;
+        const postId = btn.getAttribute('data-post-id');
+        if (!postId) return;
+
+        // simple GET request to the like endpoint; update the count on success
+        fetch(`/api/post/${postId}/like`)
+            .then(res => res.json().then(data => ({status: res.status, body: data})))
+            .then(({status, body}) => {
+                if (status === 200 && body && body.likes !== undefined) {
+                    const el = document.getElementById(`likes-${postId}`);
+                    if (el) el.textContent = body.likes;
+                    // give visual feedback
+                    btn.classList.add('liked');
+                    setTimeout(() => btn.classList.remove('liked'), 500);
+                } else {
+                    console.warn('Like failed', body);
+                }
+            }).catch(err => console.error('Error liking post', err));
+    }
+
+    const buttons = document.querySelectorAll('.like-button');
+    buttons.forEach(b => b.addEventListener('click', onLikeClick));
+});
+</script>
 {% endif %}
 {% endblock %}
