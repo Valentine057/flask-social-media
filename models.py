@@ -1,6 +1,8 @@
-from sqlalchemy import Column, Integer, String, Date, TIMESTAMP, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, TIMESTAMP, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+
+import sqlite3
 
 from .db import db
 
@@ -9,10 +11,10 @@ class User(db.Model):
     __tablename__ = "user"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    first_name = Column(String, nullable=False)
-    last_name = Column(String, nullable=False)
-    email = Column(String, unique=True, nullable=False)
-    password = Column(String, nullable=False)
+    first_name = Column(String(255), nullable=False)
+    last_name = Column(String(255), nullable=False)
+    email = Column(String(255), unique=True, nullable=False)
+    password = Column(String(255), nullable=False)
     date_of_birth = Column(Date)
     created_at = Column(TIMESTAMP, nullable=False, server_default=func.now())
     
@@ -36,8 +38,7 @@ class Post(db.Model):
     __tablename__ = "post"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    caption = Column(String)
-    likes = Column(Integer, nullable=False, default=0)
+    caption = Column(String(2047))
     views = Column(Integer, nullable=False, default=0)
     user_id = Column(ForeignKey('user.id'), nullable=False)
     created_at = Column(TIMESTAMP, nullable=False, server_default=func.now())
@@ -50,4 +51,24 @@ class Post(db.Model):
 
     def __str__(self):
         return f"<Post by {self.user.first_name}, {self.likes} likes>"
+    
+    
+class Likes(db.Model):
+    __tablename__ = "likes"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(ForeignKey('user.id'), nullable=False)
+    post_id = Column(ForeignKey('post.id'), nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "post_id"),
+    )
+
+
+    def __init__(self, user_id, post_id):
+        self.user_id= user_id
+        self.post_id= post_id
+
+
+
 

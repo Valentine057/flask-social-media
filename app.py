@@ -1,11 +1,12 @@
 import os
-import sqlite3 
 
-from flask import Flask, session, redirect, render_template, request, url_for, jsonify
+import sqlalchemy.exc
+from flask import Flask, session, redirect, jsonify, render_template, request, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import func
 
-from .db import init_db, db, close_db 
-from .models import User, Post
+from .db import init_db, db, close_db
+from .models import User, Post, Likes
 
 
 full_project_path = os.path.dirname(os.path.realpath(__file__))
@@ -31,6 +32,7 @@ def index():
     user = None
     posts = None
     
+    # If the user is logged in
     if "email" in session:
         user = db.session.execute(db.select(User).filter_by(email=session["email"])).scalar_one()
         posts = db.session.execute(db.select(Post).order_by(Post.created_at)).scalars()
@@ -65,7 +67,7 @@ def sign_up():
         try:       
             db.session.add(user)
             db.session.commit()
-        except sqlite3.IntegrityError: 
+        except sqlalchemy.exc.IntegrityError: 
             error= "This email already exists"
         else:
             return redirect(url_for('show_login_form'))
@@ -134,12 +136,20 @@ def like_post(post_id):
     if post is None:
         return jsonify({"error": "Post not found"}), 404
 
+    user = None
+    if "email" in session:
+        user = db.session.execute(db.select(User).filter_by(email=session["email"])).scalar_one()
+    else:
+        return jsonify({"error": "Log in to like a post"}), 404
+
     # Ensure likes is an int and increment
-    post.likes = (post.likes or 0) + 1
-    db.session.add(post)
+    new_like = Likes(user.id, post_id)
+    db.session.add(new_like)
     db.session.commit()
 
-    return jsonify({"id": post.id, "likes": post.likes})
+    likes = db.session.execute(db.select(func.count()).select(Likes).filter_by(post_id=post.id)).scalar_one()
+
+    return jsonify({"id": post.id, "likes": likes})
 
 
 # these lines indicates that we are in  "development mode"
