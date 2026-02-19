@@ -13,6 +13,11 @@
 				"wholroyd.jinja",
 				"cvbge.escape-string"
 			]
+		},
+		"codespaces": {
+			"openFiles": [
+				"app.py"
+			]
 		}
 	}
 

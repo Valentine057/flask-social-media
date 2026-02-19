@@ -31,18 +31,15 @@
         {% for post in all_posts %}
         <div class="post_card">
             <div class="post_card_banner">
-                <button class="like-button" data-post-id="{{ post['id'] }}" aria-label="Like post">❤</button>
-                <span class="likes-text"><span class="likes-count" id="likes-{{ post['id'] }}">{{ post["likes"] }}</span> likes, {{ post["views"] }} views</span>
+                <span>{{ post["user"]["first_name"] | capitalize }}&nbsp;{{ post["user"]["last_name"] | capitalize }}</span>
                 <span>{{ post["created_at"].strftime("%Y-%m-%d") }}</span>
             </div>
             <div class="post_card_body">
                 <p>{{ post["caption"] }}</p>
             </div>
             <div class="post_card_footer">
-                <!-- TO DO: COUNT NUMBER OF LIKES FROM THE DATABASE -->
-                <span>{{ 0 }} likes, {{ post["views"] }} views</span>
-                <button id="like-btn" onclick="likePost(1)"> ❤️ Like </button>
-                <p>Likes: <span id="like-count">0</span></p>
+                <button class="like-button" data-post-id="{{ post['id'] }}" aria-label="Like post">&#x1F497;</button>
+                <span class="likes-text"><span class="likes-count" id="likes-{{ post['id'] }}">{{ likes[loop.index0] | int }}</span> likes, {{ post["views"] }} views</span>
             </div>
         </div>
         {% else %}
