@@ -15,6 +15,15 @@
                 {% block header_items %}{% endblock %}
             </div>
         </header>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div id="flash_messages">
+                    {% for m in messages %}
+                        <div class="flash">{{ m }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
         {% block centralized_form %}
         {% endblock %}
     {% endblock %}

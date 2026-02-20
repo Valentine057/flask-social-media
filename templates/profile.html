@@ -1,0 +1,26 @@
+{% extends '_base.html' %}
+
+{% block page_title %}Profile{% endblock %}
+
+{% block page_body %}
+{{ super() }}
+{% if current_user %}
+<main id="profile_container">
+    <h2>Profile — {{ current_user['first_name'] | capitalize }} {{ current_user['last_name'] | capitalize }}</h2>
+
+    <div class="profile_card">
+        <div class="profile_info">
+            <p><strong>Email:</strong> {{ current_user['email'] }}</p>
+            <p><strong>Date joined:</strong> {{ current_user['created_at'].strftime('%Y-%m-%d') }}</p>
+            <p><strong>Date of birth:</strong> {% if current_user['date_of_birth'] %}{{ current_user['date_of_birth'] }}{% else %}Not set{% endif %}</p>
+
+            <p>
+                <a class="header_button" href="{{ url_for('edit_profile_form') }}">Edit profile</a>
+            </p>
+        </div>
+    </div>
+</main>
+{% else %}
+    <p>Please <a href="{{ url_for('show_login_form') }}">log in</a> to view profile.</p>
+{% endif %}
+{% endblock %}

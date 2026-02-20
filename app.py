@@ -1,8 +1,9 @@
 import os
 
 import sqlalchemy.exc
-from flask import Flask, session, redirect, jsonify, render_template, request, url_for
+from flask import Flask, session, redirect, jsonify, render_template, request, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
+import datetime
 from sqlalchemy import func
 
 from .db import init_db, db, close_db
@@ -25,6 +26,8 @@ os.makedirs(app.instance_path, exist_ok=True)
 db.init_app(app)
 app.cli.add_command(init_db)
 app.teardown_appcontext(close_db)
+
+# Note: profile photo upload removed to avoid schema changes. Profiles store only simple fields.
 
 
 @app.route('/')
@@ -80,18 +83,21 @@ def login():
     password= request.form['password']
     error= None
 
-    user = db.session.execute(db.select(User).filter_by(email=email)).scalar_one()
+    user = db.session.execute(db.select(User).filter_by(email=email)).scalar_one_or_none()
 
     if user is None:
-        error= "incorrect email"
-    elif not check_password_hash(user["password"], password):
-        error= "password don't match"
-    
+        error = "incorrect email"
+    elif not check_password_hash(user.password, password):
+        error = "password don't match"
+
     if error is None:
-        session["email"]=user.email
+        session["email"] = user.email
+        # optional: flash a message
+        flash('Logged in successfully')
         return redirect(url_for('index'))
     else:
-        return error, 401
+        flash(error)
+        return redirect(url_for('show_login_form'))
 
 
 @app.route('/sign-up', methods=['GET'])
@@ -122,6 +128,55 @@ def create_post():
         return redirect(url_for('index'))
     else:
         return error, 401
+
+
+@app.get('/profile')
+def show_profile():
+    if 'email' not in session:
+        return redirect(url_for('show_login_form'))
+
+    user = db.session.execute(db.select(User).filter_by(email=session['email'])).scalar_one()
+    return render_template('profile.html', current_user=user)
+
+
+@app.get('/profile/edit')
+def edit_profile_form():
+    if 'email' not in session:
+        return redirect(url_for('show_login_form'))
+
+    user = db.session.execute(db.select(User).filter_by(email=session['email'])).scalar_one()
+    return render_template('edit-profile.html', current_user=user)
+
+
+@app.post('/profile/edit')
+def edit_profile():
+    if 'email' not in session:
+        return redirect(url_for('show_login_form'))
+
+    user = db.session.execute(db.select(User).filter_by(email=session['email'])).scalar_one()
+
+    # Update simple fields
+    first = request.form.get('firstName')
+    last = request.form.get('lastName')
+    dob = request.form.get('dateOfBirth')
+    if first:
+        user.first_name = first
+    if last:
+        user.last_name = last
+    if dob:
+        try:
+            user.date_of_birth = datetime.datetime.strptime(dob, '%Y-%m-%d').date()
+        except Exception:
+            # ignore parse errors; could flash a message
+            pass
+
+    # No file uploads handled here (profile images removed to match DB schema).
+    db.session.add(user)
+    db.session.commit()
+    return redirect(url_for('show_profile'))
+
+
+# Photo removal endpoint removed (images not supported without DB column).
 
 
 @app.get('/api/post/<int:post_id>/like')

@@ -1,0 +1,25 @@
+{% extends '_base.html' %}
+
+{% block page_title %}Edit profile{% endblock %}
+
+{% block page_body %}
+{{ super() }}
+{% if current_user %}
+<main id="edit_profile">
+    <h2>Edit profile</h2>
+    <form action="{{ url_for('edit_profile') }}" method="post">
+        <label>First name</label>
+        <input type="text" name="firstName" value="{{ current_user['first_name'] }}"><br>
+        <label>Last name</label>
+        <input type="text" name="lastName" value="{{ current_user['last_name'] }}"><br>
+        <label>Date of birth</label>
+        <input type="date" name="dateOfBirth" value="{% if current_user['date_of_birth'] %}{{ current_user['date_of_birth'] }}{% endif %}"><br>
+
+        <input type="submit" value="Save" class="header_button">
+        <a class="header_button" href="{{ url_for('show_profile') }}">Cancel</a>
+    </form>
+</main>
+{% else %}
+    <p>Please <a href="{{ url_for('show_login_form') }}">log in</a> to edit your profile.</p>
+{% endif %}
+{% endblock %}

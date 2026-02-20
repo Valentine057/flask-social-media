@@ -4,7 +4,7 @@
 
 {% block header_items %}
     {% if current_user %}
-        <span class="header_text">{{ current_user["first_name"] | capitalize }}</span>
+        <a class="header_text" href="{{ url_for('show_profile') }}">{{ current_user["first_name"] | capitalize }}</a>
     {% else %}
         <button class="header_button">
             <a href="{{ url_for('show_sign_up_form') }}">Sign up</a>

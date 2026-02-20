@@ -50,7 +50,7 @@ class Post(db.Model):
         self.user_id = user_id
 
     def __str__(self):
-        return f"<Post by {self.user.first_name}, {self.likes} likes>"
+        return f"<Post by {self.user.first_name}>"
     
     
 class Likes(db.Model):
