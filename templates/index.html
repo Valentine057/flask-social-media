@@ -2,29 +2,104 @@
 
 {% block page_title %}Welcome{% endblock %}
 
- {% block banner %}
-    {% if current_user == none %}
-       <button id="butt1">
-        <a href="{{ url_for('show_sign_up_form') }}">Sign up</a>
-    </button>
-
-    <button id="butt1">
-        <a href="{{ url_for('show_login_form') }}">Log in</a>
-    </button>
+{% block header_items %}
+    {% if current_user %}
+        <span class="header_text">{{ current_user["first_name"] | capitalize }}</span>
     {% else %}
-    {{ current_user["first_name"] }}
+        <button class="header_button">
+            <a href="{{ url_for('show_sign_up_form') }}">Sign up</a>
+        </button>
+        <button class="header_button">
+            <a href="{{ url_for('show_login_form') }}">Login</a>
+        </button>
     {% endif %}
- </div>
-      
-    {% endblock %}
-     
-{% block page_body %}
-<div class="landing">
-    {% if current_user == None %}
-       
-    {% else %}
-    <h1>{{ current_user["first_name"] }}, welcome to our social media application</h1>
-    {% endif %}
-</div>
 {% endblock %}
 
+{% block page_body %}
+{{ super() }}
+{% if current_user %}
+<main id="posts_container">
+    <form action="/create-post" method="post">
+        <textarea id="post_caption" name="postCaption" rows="3" cols="50">
+            Create a new post
+        </textarea>
+
+        <input type="submit" id="post_button" value="Post">
+    </form>
+
+    <div id="post_list_container">
+        {% for post in all_posts %}
+        <div class="post_card">
+            <div class="post_card_banner">
+                <span>{{ post["user"]["first_name"] | capitalize }}&nbsp;{{ post["user"]["last_name"] | capitalize }}</span>
+                <span>{{ post["created_at"].strftime("%Y-%m-%d") }}</span>
+            </div>
+            <div class="post_card_body">
+                <p>{{ post["caption"] }}</p>
+            </div>
+            <div class="post_card_footer">
+                <button class="like-button" data-post-id="{{ post['id'] }}" aria-label="Like post">&#x1F497;</button>
+                <span class="likes-text"><span class="likes-count" id="likes-{{ post['id'] }}">{{ likes[loop.index0] | int }}</span> likes, {{ post["views"] }} views</span>
+            </div>
+        </div>
+        {% else %}
+            <p>No posts have been made yet.</p>
+        {% endfor %}
+    </div>
+</main>
+
+<script>
+// Attach click handlers to like buttons and call the backend API to increment likes.
+document.addEventListener('DOMContentLoaded', function () {
+    function onLikeClick(e) {
+        const btn = e.currentTarget;
+        const postId = btn.getAttribute('data-post-id');
+        if (!postId) return;
+
+        // simple GET request to the like endpoint; update the count on success
+        fetch(`/api/post/${postId}/like`)
+            .then(res => res.json().then(data => ({status: res.status, body: data})))
+            .then(({status, body}) => {
+                if (status === 200 && body && body.likes !== undefined) {
+                    const el = document.getElementById(`likes-${postId}`);
+                    if (el) el.textContent = body.likes;
+                    // give visual feedback
+                    btn.classList.add('liked');
+                    setTimeout(() => btn.classList.remove('liked'), 500);
+                } else {
+                    console.warn('Like failed', body);
+                }
+            }).catch(err => console.error('Error liking post', err));
+    }
+
+    const buttons = document.querySelectorAll('.like-button');
+    buttons.forEach(b => b.addEventListener('click', onLikeClick));
+});
+</script>
+{% endif %}
+{% endblock %}
+
+<script>
+    function likePost(postId) {
+    fetch("/like", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            user_id: userId,
+            post_id: postId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+
+        document.getElementById("like-count").innerText = data.total_likes;
+
+        if (data.liked) {
+            document.getElementById("like-btn").innerText = "❤️ Liked";
+            document.getElementById("like-btn").style.color = "red";
+        }
+    });
+}
+</script>

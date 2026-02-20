@@ -1,44 +1,28 @@
-import sqlite3
 import click
-from flask import g, current_app
+
+from sqlalchemy.orm import DeclarativeBase
+from flask_sqlalchemy import SQLAlchemy
+from flask import current_app
 
 
-def get_db():
-    """Create the database and then return it."""
-    if 'db' not in g:
-        g.db = sqlite3.connect(
-            current_app.config['DATABASE'],
-            detect_types=sqlite3.PARSE_DECLTYPES
-        )
-        g.db.row_factory = sqlite3.Row
+class DbTableBase(DeclarativeBase):
+    pass
 
-    return g.db
-
-
-def close_db(e=None):
-    db = g.pop('db', None)
-
-    if db is not None:
-        db.close()
-
+db = SQLAlchemy(model_class = DbTableBase)
 
 @click.command('init-db')
 def init_db():
     """Clear the existing data and create new tables."""
-    db = get_db()
-
-    with current_app.open_resource('schema.sql') as file:
-        db.executescript(file.read().decode('utf8'))
+    with current_app.app_context():
+        db.create_all()
     
     click.echo('Initialized the database.')
 
 
-def init_app(app):
-    app.cli.add_command(init_db)
-    app.teardown_appcontext(close_db)
+def close_db(exception=None):
+    """Teardown the database when the app stops."""
+    db.session.remove()
 
 
 if __name__ == '__main__':
     pass
-
-

@@ -1,0 +1,3 @@
+SECRET_KEY = 'dev'
+#format = protocol://username:password@host/db_name
+SQLALCHEMY_DATABASE_URI = 'sqlite:///db.sqlite'
