@@ -34,15 +34,25 @@ app.teardown_appcontext(close_db)
 def index():
     user = None
     posts = None
+    like_counts = None
     
     # If the user is logged in
     if "email" in session:
         user = db.session.execute(db.select(User).filter_by(email=session["email"])).scalar_one()
-        posts = db.session.execute(db.select(Post).order_by(Post.created_at)).scalars()
         # This is another way to query a user
         # user= User.query.filter(User.email == session["email"]).first()
 
-    return render_template('index.html', current_user=user, all_posts=posts)
+        like_count_subq = db.select(func.count(Likes.id).label('likes'), Likes.post_id).group_by(Likes.post_id).subquery()
+        posts_result = db.session.execute(db.select(Post, like_count_subq.c.likes).outerjoin_from(Post, like_count_subq).order_by(Post.created_at))
+
+        posts = []
+        like_counts = []
+        for post_result in posts_result:
+            post, like_count = post_result
+            posts.append(post)
+            like_counts.append(like_count)
+
+    return render_template('index.html', current_user=user, all_posts=posts, likes=like_counts)
 
 
 @app.route('/sign-up', methods=['POST'])
@@ -202,7 +212,7 @@ def like_post(post_id):
     db.session.add(new_like)
     db.session.commit()
 
-    likes = db.session.execute(db.select(func.count()).select(Likes).filter_by(post_id=post.id)).scalar_one()
+    likes = db.session.execute(db.select(func.count()).select_from(Likes).filter_by(post_id=post.id)).scalar_one()
 
     return jsonify({"id": post.id, "likes": likes})
 

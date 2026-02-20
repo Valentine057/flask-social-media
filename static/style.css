@@ -120,6 +120,10 @@ input {
     flex-direction: row;
 }
 
+.post_card {
+    margin: 20px auto;
+}
+
 /* Like button styles for posts */
 .post_card_footer {
     display: flex;
