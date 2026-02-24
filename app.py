@@ -1,4 +1,6 @@
 import os
+import glob
+from werkzeug.utils import secure_filename
 
 import sqlalchemy.exc
 from flask import Flask, session, redirect, jsonify, render_template, request, url_for, flash
@@ -28,6 +30,22 @@ app.cli.add_command(init_db)
 app.teardown_appcontext(close_db)
 
 # Note: profile photo upload removed to avoid schema changes. Profiles store only simple fields.
+
+# --- ADD: Avatar configuration (file-based avatars; no DB changes) ---
+AVATAR_FOLDER = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'static', 'images', 'avatars')
+ALLOWED_EXT = {'png', 'jpg', 'jpeg', 'gif'}
+os.makedirs(AVATAR_FOLDER, exist_ok=True)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXT
+
+def get_avatar_url_for_user_id(uid):
+    for ext in ALLOWED_EXT:
+        candidate = os.path.join(AVATAR_FOLDER, f"user_{uid}.{ext}")
+        if os.path.exists(candidate):
+            return url_for('static', filename=f"images/avatars/user_{uid}.{ext}")
+    return None
+# --- END ADD ---
 
 
 @app.route('/')
@@ -146,7 +164,16 @@ def show_profile():
         return redirect(url_for('show_login_form'))
 
     user = db.session.execute(db.select(User).filter_by(email=session['email'])).scalar_one()
-    return render_template('profile.html', current_user=user)
+
+    # compute avatar url (file-based avatar) and load user's posts for timeline
+    avatar_url = get_avatar_url_for_user_id(user.id)
+    posts = None
+    try:
+        posts = db.session.execute(db.select(Post).filter_by(user_id=user.id).order_by(Post.created_at.desc())).scalars().all()
+    except Exception:
+        posts = None
+
+    return render_template('profile.html', current_user=user, avatar_url=avatar_url, posts=posts)
 
 
 @app.get('/profile/edit')
@@ -217,8 +244,107 @@ def like_post(post_id):
     return jsonify({"id": post.id, "likes": likes})
 
 
+@app.route('/profile/avatar', methods=['POST'])
+def upload_avatar():
+    if 'email' not in session:
+        flash("Please log in to upload an avatar.")
+        return redirect(url_for('show_login_form'))
+
+    file = request.files.get('avatar')
+    if not file or file.filename == '':
+        flash('No file selected.')
+        return redirect(url_for('show_profile'))
+
+    if not allowed_file(file.filename):
+        flash('Invalid file type. Allowed: png, jpg, jpeg, gif')
+        return redirect(url_for('show_profile'))
+
+    user = db.session.execute(db.select(User).filter_by(email=session['email'])).scalar_one_or_none()
+    if not user:
+        flash('User not found.')
+        return redirect(url_for('show_login_form'))
+
+    # remove existing avatar files for this user
+    pattern = os.path.join(AVATAR_FOLDER, f"user_{user.id}.*")
+    for p in glob.glob(pattern):
+        try:
+            os.remove(p)
+        except OSError:
+            pass
+
+    ext = secure_filename(file.filename).rsplit('.', 1)[1].lower()
+    filename = f"user_{user.id}.{ext}"
+    filepath = os.path.join(AVATAR_FOLDER, filename)
+    file.save(filepath)
+    flash('Avatar uploaded.')
+    return redirect(url_for('show_profile'))
+
+
+@app.route('/profile/avatar/remove', methods=['POST'])
+def remove_avatar():
+    if 'email' not in session:
+        flash("Please log in to remove avatar.")
+        return redirect(url_for('show_login_form'))
+
+    user = db.session.execute(db.select(User).filter_by(email=session['email'])).scalar_one_or_none()
+    if not user:
+        flash('User not found.')
+        return redirect(url_for('show_login_form'))
+
+    pattern = os.path.join(AVATAR_FOLDER, f"user_{user.id}.*")
+    removed = False
+    for p in glob.glob(pattern):
+        try:
+            os.remove(p)
+            removed = True
+        except OSError:
+            pass
+
+    flash('Avatar removed.' if removed else 'No avatar to remove.')
+    return redirect(url_for('show_profile'))
+
+
+# Add server-side change-password endpoint
+@app.post('/profile/change-password')
+def change_password():
+    if 'email' not in session:
+        flash("Please log in to change your password.")
+        return redirect(url_for('show_login_form'))
+
+    user = db.session.execute(db.select(User).filter_by(email=session['email'])).scalar_one_or_none()
+    if not user:
+        flash("User not found.")
+        return redirect(url_for('show_login_form'))
+
+    current = request.form.get('currentPassword', '').strip()
+    new = request.form.get('newPassword', '').strip()
+    confirm = request.form.get('confirmPassword', '').strip()
+
+    if not current or not new or not confirm:
+        flash("All password fields are required.")
+        return redirect(url_for('edit_profile_form'))
+
+    if not check_password_hash(user.password, current):
+        flash("Current password is incorrect.")
+        return redirect(url_for('edit_profile_form'))
+
+    if new != confirm:
+        flash("New password and confirmation do not match.")
+        return redirect(url_for('edit_profile_form'))
+
+    if len(new) < 8:
+        flash("New password must be at least 8 characters.")
+        return redirect(url_for('edit_profile_form'))
+
+    user.password = generate_password_hash(new)
+    db.session.add(user)
+    db.session.commit()
+
+    flash("Password changed successfully.")
+    return redirect(url_for('show_profile'))
+
+
 # these lines indicates that we are in  "development mode"
 # they will only execute if we run the app by executing this file directly
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
-    

@@ -1,26 +1,82 @@
 {% extends '_base.html' %}
 
-{% block page_title %}Profile{% endblock %}
+{% block page_title %}{{ current_user.first_name | default('User') }}'s Profile{% endblock %}
 
 {% block page_body %}
 {{ super() }}
 {% if current_user %}
-<main id="profile_container">
-    <h2>Profile — {{ current_user['first_name'] | capitalize }} {{ current_user['last_name'] | capitalize }}</h2>
+<main class="profile-page">
 
-    <div class="profile_card">
-        <div class="profile_info">
-            <p><strong>Email:</strong> {{ current_user['email'] }}</p>
-            <p><strong>Date joined:</strong> {{ current_user['created_at'].strftime('%Y-%m-%d') }}</p>
-            <p><strong>Date of birth:</strong> {% if current_user['date_of_birth'] %}{{ current_user['date_of_birth'] }}{% else %}Not set{% endif %}</p>
+  <!-- Cover -->
+  <section class="profile-hero">
+    <div class="profile-cover"></div>
 
-            <p>
-                <a class="header_button" href="{{ url_for('edit_profile_form') }}">Edit profile</a>
-            </p>
-        </div>
+    <div class="profile-hero-inner container">
+      <div class="profile-avatar">
+        {% if avatar_url %}
+          <img src="{{ avatar_url }}" alt="avatar">
+        {% else %}
+          {% set initial = (current_user.first_name[:1] if current_user.first_name else 'U') | upper %}
+          <span class="avatar-text">{{ initial }}</span>
+        {% endif %}
+      </div>
+
+      <div class="profile-meta">
+        <h1 class="profile-name">{{ current_user.first_name | capitalize }} {{ current_user.last_name | capitalize }}</h1>
+        <p class="profile-sub">Joined {{ current_user.created_at.strftime('%Y-%m-%d') }}</p>
+      </div>
+
+      <div class="profile-actions">
+        <a class="btn btn-primary" href="{{ url_for('edit_profile_form') }}">Edit Profile</a>
+        <a class="btn btn-light" href="{{ url_for('index') }}">Back to Feed</a>
+      </div>
     </div>
+  </section>
+
+  <!-- Content -->
+  <section class="profile-content container">
+    <aside class="profile-sidebar">
+      <div class="card profile-card">
+        <h3>About</h3>
+        <p><strong>Email</strong><br>{{ current_user.email }}</p>
+        <p><strong>Date of birth</strong><br>{% if current_user.date_of_birth %}{{ current_user.date_of_birth }}{% else %}Not set{% endif %}</p>
+      </div>
+
+      <div class="card stats-card">
+        <ul class="stats-list">
+          <li><strong>{{ posts|length if posts else 0 }}</strong><span>Posts</span></li>
+          <li><strong>0</strong><span>Friends</span></li>
+          <li><strong>0</strong><span>Likes</span></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="profile-main">
+      <div class="card post-box">
+        <h3>Intro</h3>
+        <p>Welcome to your profile. Use "Edit Profile" to update your info and avatar.</p>
+      </div>
+
+      <div class="card timeline-card">
+        <h3>Posts</h3>
+        {% if posts %}
+          {% for post in posts %}
+            <article class="post">
+              <div class="post-header">
+                <div class="post-author">{{ current_user.first_name | capitalize }}</div>
+                <div class="post-time">{{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+              </div>
+              <div class="post-body">{{ post.caption }}</div>
+            </article>
+          {% endfor %}
+        {% else %}
+          <p class="muted">No posts yet.</p>
+        {% endif %}
+      </div>
+    </main>
+  </section>
 </main>
 {% else %}
-    <p>Please <a href="{{ url_for('show_login_form') }}">log in</a> to view profile.</p>
+  <p>Please <a href="{{ url_for('show_login_form') }}">log in</a> to view profile.</p>
 {% endif %}
 {% endblock %}

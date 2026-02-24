@@ -2,30 +2,35 @@
 
 {% block page_title %}Login{% endblock %}
 
-{% block header_items %}
-    <button class="header_button">
-        <a href="{{ url_for('show_sign_up_form') }}">Sign up</a>
-    </button>
-{% endblock %}
+{% block page_body %}
+{{ super() }}
 
-{% block centralized_form %}
-<div id="centralized_form_container">
-<div class="login">
-    <form action="/login" method="post">
-        <div id="element">
-        <div id="">
-            <label for="email">Email</label><br>
-            <input type="email" id="email" name="email">
-        </div> 
-        <div>
-            <label for="password">Password</label><br>
-            <input type="password" id="password" name="password"><br><br>
+<main class="auth-page container">
+  <div class="card auth-card">
+    <h2>Log in</h2>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div id="flash_messages">
+          {% for m in messages %}
+            <div class="flash">{{ m }}</div>
+          {% endfor %}
         </div>
-        </div>
+      {% endif %}
+    {% endwith %}
 
+    <form method="post" action="{{ url_for('login') }}" class="auth-form">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" required placeholder="you@example.com">
 
-        <input type="submit" id="butt1" value="Login">
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" required autocomplete="current-password">
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Log in</button>
+        <a class="btn btn-light" href="{{ url_for('show_sign_up_form') }}">Sign up</a>
+      </div>
     </form>
-</div>
-</div>
+  </div>
+</main>
 {% endblock %}
