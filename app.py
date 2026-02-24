@@ -30,8 +30,8 @@ app.teardown_appcontext(close_db)
 @app.route('/')
 def index():
     user = None
-    posts = None
-    like_counts = None
+    posts = []
+    like_counts = []
     
     # If the user is logged in
     if "email" in session:
@@ -42,8 +42,6 @@ def index():
         like_count_subq = db.select(func.count(Likes.id).label('likes'), Likes.post_id).group_by(Likes.post_id).subquery()
         posts_result = db.session.execute(db.select(Post, like_count_subq.c.likes).outerjoin_from(Post, like_count_subq).order_by(Post.created_at))
 
-        posts = []
-        like_counts = []
         for post_result in posts_result:
             post, like_count = post_result
             posts.append(post)
