@@ -388,6 +388,56 @@ input {
     gap: 8px;
 }
 
+/* Dropdown (hover to open) */
+.dropdown { position: relative; display: inline-block; }
+.dropbtn { background: transparent; border: 0; cursor: pointer; display:flex; align-items:center; gap:8px; color:inherit; font-weight:600; }
+.nav-avatar { width:28px; height:28px; border-radius:50%; object-fit:cover; }
+.nav-name { margin-left:6px; }
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: #f9f9f9;
+  min-width: 140px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  padding: 8px;
+  border-radius:6px;
+  z-index: 50;
+}
+
+.dropdown-content a,
+.dropdown-content .dropdown-logout {
+  display:block;
+  padding:8px 10px;
+  color:#222;
+  text-decoration:none;
+  border-radius:4px;
+  margin:4px 0;
+  background: transparent;
+  text-align:left;
+  width:100%;
+  box-sizing:border-box;
+}
+
+.dropdown-content a:hover,
+.dropdown-content .dropdown-logout:hover {
+  background:#eee;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* style logout button inside dropdown */
+.dropdown-logout {
+  border:0;
+  background:transparent;
+  cursor:pointer;
+  font-weight:600;
+  color:#c0392b;
+}
+
 /* Small screens */
 @media (max-width:880px) {
     .profile-content {
@@ -415,4 +465,27 @@ input {
     .profile_info {
         max-width: 100%;
     }
+}
+.navbar {
+    display: flex;
+    justify-content: flex-end;
+    background-color: #222;
+    padding: 15px;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+    font-weight: bold;
+}
+
+.logout-btn {
+    background-color:  #c0392b;
+    padding: 6px 12px;
+    border-radius: 5px;
+}
+
+.logout-btn:hover {
+    background-color:  #c0392b;
 }

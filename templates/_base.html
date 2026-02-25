@@ -27,5 +27,33 @@
         {% block centralized_form %}
         {% endblock %}
     {% endblock %}
+    <nav class="header-right">
+      {% if current_user and current_user.is_authenticated %}
+      <div class="nav-dropdown" id="accountDropdown">
+        <button type="button" class="nav-button" id="navToggle" aria-haspopup="true" aria-expanded="false">
+          {% if avatar_url %}
+            <img src="{{ avatar_url }}" alt="avatar" class="nav-avatar">
+          {% else %}
+            <span class="nav-initial">{{ current_user.first_name[:1] | upper }}</span>
+          {% endif %}
+          <span class="nav-name">{{ current_user.first_name | capitalize }}</span>
+          <span class="nav-caret">▾</span>
+        </button>
+
+        <div class="dropdown-menu" id="navMenu" role="menu" aria-hidden="true">
+          <a class="dropdown-item" href="{{ url_for('index') }}">Home</a>
+          <a class="dropdown-item" href="{{ url_for('show_profile') }}">Profile</a>
+
+          <!-- Sign out uses POST to clear session -->
+          <form method="post" action="{{ url_for('logout') }}" class="dropdown-item form-inline">
+            <button type="submit" class="signout-btn">Sign Out</button>
+          </form>
+        </div>
+      </div>
+      {% else %}
+        <a class="header_button" href="{{ url_for('show_login_form') }}">Log in</a>
+        <a class="header_button" href="{{ url_for('show_sign_up_form') }}">Sign up</a>
+      {% endif %}
+    </nav>
     </body>
 </html>
