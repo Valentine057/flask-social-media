@@ -40,7 +40,7 @@ def index():
         # user= User.query.filter(User.email == session["email"]).first()
 
         like_count_subq = db.select(func.count(Likes.id).label('likes'), Likes.post_id).group_by(Likes.post_id).subquery()
-        posts_result = db.session.execute(db.select(Post, like_count_subq.c.likes).outerjoin_from(Post, like_count_subq).order_by(Post.created_at))
+        posts_result = db.session.execute(db.select(Post, like_count_subq.c.likes).outerjoin_from(Post, like_count_subq).order_by(Post.created_at.desc()).limit(10))
 
         for post_result in posts_result:
             post, like_count = post_result
@@ -158,6 +158,28 @@ def like_post(post_id):
     likes = db.session.execute(db.select(func.count()).select_from(Likes).filter_by(post_id=post.id)).scalar_one()
 
     return jsonify({"id": post.id, "likes": likes})
+
+@app.route('/posts')
+def get_posts():
+
+    page = request.args.get("page", 2, type=int)
+    per_page= 10
+
+    like_count_subq = db.select(func.count(Likes.id).label('likes'), Likes.post_id).group_by(Likes.post_id).subquery()
+    posts= db.paginate(db.select(Post, like_count_subq.c.likes).outerjoin_from(Post, like_count_subq).order_by(Post.created_at.desc()), page=page, per_page=per_page)
+
+    return jsonify([
+        {
+            "id": post.id,
+            "created_at": post.created_at.strftime("%Y-%m-%d"),
+            "caption": post.caption,
+            "firstName": post.user.first_name,
+            "lastName": post.user.last_name,
+            "views": post.views,
+            "likes": like_count
+        }
+        for post, like_count in posts.items
+    ])
 
 
 # these lines indicates that we are in  "development mode"

@@ -46,6 +46,7 @@
             <p>No posts have been made yet.</p>
         {% endfor %}
     </div>
+    <div id="loading">loading...</div>
 </main>
 
 <script>
@@ -76,6 +77,77 @@ document.addEventListener('DOMContentLoaded', function () {
     buttons.forEach(b => b.addEventListener('click', onLikeClick));
 });
 </script>
+
+<script>
+    let page=2;
+    let loading= false;
+
+    async function loadPosts() {
+        if (loading) return;
+        loading= true;
+
+        const response = await fetch(`/posts?page=${page}`);
+        const data = await response.json();
+
+        const feed = document.getElementById("post_list_container");
+
+        data.forEach(post => {
+            const div = document.createElement("div");
+            div.classList.add("post_card");
+            const banner = document.createElement("div");
+            banner.classList.add("post_card_banner");
+            div.appendChild(banner);
+            const firstNameSpan = document.createElement("span");
+            firstNameSpan.innerText = post.user.first_name + "&nbsp;" + post.user.last_name
+            banner.appendChild(firstNameSpan);
+            const createdAtSpan = document.createElement("span");
+            createdAtSpan.innerText = post.created_at;
+            // altenative to time format
+            // const time =new Date(post.created_at);
+            // createdAtSpan.innerText = `${time.getFullYear()}-${time.getMonth()}-${time.getDay()}`
+            banner.appendChild(createdAtSpan);
+            const postCardBody =document.createElement("div");
+            postCardBody.classList.add("post_card_body");
+            div.appendChild(postCardBody);
+            const caption= document.createElement("p");
+            caption.innerText = post.caption;
+            postCardBody.appendChild(caption);
+            const postCardFooter = document.createElement("div");
+            postCardFooter.classList.add("post_card_footer");
+            div.appendChild(postCardFooter);
+            const button = document.createElement("button");
+            button.classList.add("like-button");
+            button.innerText = "&#x1F497;";
+            const buttonPostId = document.createAttribute("data-post-id");
+            buttonPostId.value = post.id;
+            button.setAttributeNode(buttonPostId);
+            const buttonAriaLabel = document.createAttribute("aria-label");
+            buttonAriaLabel.value = "Like post";
+            postCardFooter.appendChild(button);
+            const likesText = document.createElement("span");
+            likesText.classList.add("likes-text");
+            const likesCount = document.createElement("span");
+            likesText.appendChild(likesCount);
+            likesCount.classList.add("likes-count");
+            likesCount.id = `likes-${post.id}`;
+            likesCount.innerText = post.likes;
+            likesText.append(document.createTextNode(` likes, ${post.views} views`));
+            postCardFooter.appendChild(likesText);
+            
+            feed.appendChild(div);
+        });
+
+        page++;
+        loading= false;
+        
+    }
+
+    window.addEventListener("scroll", () => {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+            loadPosts();
+        }
+    });
+</script>
 {% endif %}
 {% endblock %}
 
@@ -103,3 +175,4 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 }
 </script>
+
