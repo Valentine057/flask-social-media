@@ -18,6 +18,9 @@
 {% block page_body %}
 {{ super() }}
 {% if current_user %}
+<input type="text" id="search" placeholder="Search username">
+<button id="searchBtn">Search</button>
+
 <main id="posts_container">
     <form action="/create-post" method="post">
         <textarea id="post_caption" name="postCaption" rows="3" cols="50">
@@ -50,29 +53,29 @@
 </main>
 
 <script>
+function onLikeClick(e) {
+    const btn = e.currentTarget;
+    const postId = btn.getAttribute('data-post-id');
+    if (!postId) return;
+
+    // simple GET request to the like endpoint; update the count on success
+    fetch(`/api/post/${postId}/like`)
+        .then(res => res.json().then(data => ({status: res.status, body: data})))
+        .then(({status, body}) => {
+            if (status === 200 && body && body.likes !== undefined) {
+                const el = document.getElementById(`likes-${postId}`);
+                if (el) el.textContent = body.likes;
+                // give visual feedback
+                btn.classList.add('liked');
+                setTimeout(() => btn.classList.remove('liked'), 500);
+            } else {
+                console.warn('Like failed', body);
+            }
+        }).catch(err => console.error('Error liking post', err));
+}
+
 // Attach click handlers to like buttons and call the backend API to increment likes.
 document.addEventListener('DOMContentLoaded', function () {
-    function onLikeClick(e) {
-        const btn = e.currentTarget;
-        const postId = btn.getAttribute('data-post-id');
-        if (!postId) return;
-
-        // simple GET request to the like endpoint; update the count on success
-        fetch(`/api/post/${postId}/like`)
-            .then(res => res.json().then(data => ({status: res.status, body: data})))
-            .then(({status, body}) => {
-                if (status === 200 && body && body.likes !== undefined) {
-                    const el = document.getElementById(`likes-${postId}`);
-                    if (el) el.textContent = body.likes;
-                    // give visual feedback
-                    btn.classList.add('liked');
-                    setTimeout(() => btn.classList.remove('liked'), 500);
-                } else {
-                    console.warn('Like failed', body);
-                }
-            }).catch(err => console.error('Error liking post', err));
-    }
-
     const buttons = document.querySelectorAll('.like-button');
     buttons.forEach(b => b.addEventListener('click', onLikeClick));
 });
@@ -98,10 +101,10 @@ document.addEventListener('DOMContentLoaded', function () {
             banner.classList.add("post_card_banner");
             div.appendChild(banner);
             const firstNameSpan = document.createElement("span");
-            firstNameSpan.innerText = post.user.first_name + "&nbsp;" + post.user.last_name
+            firstNameSpan.innerText = post.firstName + "&nbsp;" + post.lastName
             banner.appendChild(firstNameSpan);
             const createdAtSpan = document.createElement("span");
-            createdAtSpan.innerText = post.created_at;
+            createdAtSpan.innerText = post.createdAt;
             // altenative to time format
             // const time =new Date(post.created_at);
             // createdAtSpan.innerText = `${time.getFullYear()}-${time.getMonth()}-${time.getDay()}`
@@ -118,6 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const button = document.createElement("button");
             button.classList.add("like-button");
             button.innerText = "&#x1F497;";
+            button.addEventListener('click', onLikeClick);
             const buttonPostId = document.createAttribute("data-post-id");
             buttonPostId.value = post.id;
             button.setAttributeNode(buttonPostId);
@@ -174,5 +178,28 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 }
+</script>
+
+<script>
+    const feed = document.getElementById("post_list_container");
+    document.getElementById("searchBtn")
+    .addEventListener("click", function() {
+
+    let username = document.getElementById("searchInput").value;
+
+    fetch(`/search?username=${User.first_name}`)
+        .then(response => response.json())
+        .then(data => {
+
+            let feed = document.getElementById("feed");
+            feed.innerHTML = "";  
+
+            data.forEach(post => {
+                let div = document.createElement("div");
+                div.innerHTML = `<p>${post.content}</p>`;
+                feed.appendChild(div);
+            });
+        });
+});
 </script>
 

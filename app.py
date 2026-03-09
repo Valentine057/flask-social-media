@@ -4,9 +4,10 @@ import sqlalchemy.exc
 from flask import Flask, session, redirect, jsonify, render_template, request, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
+from sqlalchemy.orm import registry
 
 from .db import init_db, db, close_db
-from .models import User, Post, Likes
+from .models import User, Post, Likes, views, FullPostWithLikes
 
 
 full_project_path = os.path.dirname(os.path.realpath(__file__))
@@ -25,6 +26,12 @@ os.makedirs(app.instance_path, exist_ok=True)
 db.init_app(app)
 app.cli.add_command(init_db)
 app.teardown_appcontext(close_db)
+
+# register database views in the ORM
+mapper_registry = registry()
+for view in views:
+    if not hasattr(view, '_sa_class_manager'):
+        mapper_registry.map_imperatively(view, view.__view__)
 
 
 @app.route('/')
@@ -165,20 +172,33 @@ def get_posts():
     page = request.args.get("page", 2, type=int)
     per_page= 10
 
-    like_count_subq = db.select(func.count(Likes.id).label('likes'), Likes.post_id).group_by(Likes.post_id).subquery()
-    posts= db.paginate(db.select(Post, like_count_subq.c.likes).outerjoin_from(Post, like_count_subq).order_by(Post.created_at.desc()), page=page, per_page=per_page)
+    posts= db.paginate(db.select(FullPostWithLikes).order_by(FullPostWithLikes.created_at.desc()), page=page, per_page=per_page)
 
     return jsonify([
         {
             "id": post.id,
-            "created_at": post.created_at.strftime("%Y-%m-%d"),
+            "createdAt": post.created_at.strftime("%Y-%m-%d"),
             "caption": post.caption,
-            "firstName": post.user.first_name,
-            "lastName": post.user.last_name,
+            "firstName": post.first_name,
+            "lastName": post.last_name,
             "views": post.views,
-            "likes": like_count
+            "likes": post.like_count
         }
-        for post, like_count in posts.items
+        for post in posts
+    ])
+
+@app.route("/search")
+def search():
+    username = request.args.get("first_name")
+
+    posts = db.session.query(Post).join(User).filter(User.first_name.ilike(f"%{User.first_name}%")).order_by(Post.created_at.desc()).all()
+
+    return jsonify([
+        {
+            "id": post.id,
+            "caption": post.caption
+        }
+        for post in posts
     ])
 
 
