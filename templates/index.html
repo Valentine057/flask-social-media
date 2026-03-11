@@ -3,32 +3,18 @@
 {% block page_title %}Welcome{% endblock %}
 
 {% block header_items %}
-    {% if current_user %}
-        <a class="header_text" href="{{ url_for('show_profile') }}">{{ current_user["first_name"] | capitalize }}</a>
-    {% else %}
-        <button class="header_button">
-            <a href="{{ url_for('show_sign_up_form') }}">Sign up</a>
-        </button>
-        <button class="header_button">
-            <a href="{{ url_for('show_login_form') }}">Login</a>
-        </button>
-    {% endif %}
+{% if not current_user %}
+    <button class="header_button">
+        <a href="{{ url_for('show_sign_up_form') }}">Sign up</a>
+    </button>
+    <button class="header_button">
+        <a href="{{ url_for('show_login_form') }}">Login</a>
+    </button>
+{% endif %}
 {% endblock %}
 
 {% block page_body %}
 {{ super() }}
-
-<!-- NAVBAR: Home / Profile / Sign Out (shows Sign Out only when logged in) -->
-<div class="navbar">
-  <a href="{{ url_for('index') }}">Home</a>
-
-  {% if current_user %}
-    <a href="{{ url_for('show_profile') }}">Profile</a>
-    <a href="{{ url_for('logout') }}" class="logout-btn">Sign Out</a>
-  {% else %}
-    <a href="{{ url_for('show_login_form') }}">Login</a>
-  {% endif %}
-</div>
 
 {% if current_user %}
 <main id="posts_container">

@@ -68,7 +68,7 @@ input {
     color: white;
 }
 
-.header_text {
+.header-text {
     padding: 3px 20px;
     height: 30px;
     margin: 15px;
@@ -392,7 +392,6 @@ input {
 .dropdown { position: relative; display: inline-block; }
 .dropbtn { background: transparent; border: 0; cursor: pointer; display:flex; align-items:center; gap:8px; color:inherit; font-weight:600; }
 .nav-avatar { width:28px; height:28px; border-radius:50%; object-fit:cover; }
-.nav-name { margin-left:6px; }
 
 .dropdown-content {
   display: none;

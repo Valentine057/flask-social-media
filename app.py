@@ -355,6 +355,8 @@ def change_password():
 
     flash("Password changed successfully.")
     return redirect(url_for('show_profile'))
+
+
 @app.route("/logout")
 @login_required
 def logout():
