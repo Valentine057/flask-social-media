@@ -1,12 +1,10 @@
 import os
 import glob
+
 from werkzeug.utils import secure_filename
 from flask import Flask, session, redirect, jsonify, render_template, request, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
-
-# add flask-login imports
-from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 
 from .db import init_db, db, close_db
 from .models import User, Post, Likes
@@ -16,19 +14,6 @@ full_project_path = os.path.dirname(os.path.realpath(__file__))
 
 # create and configure the app
 app = Flask(__name__, instance_path=full_project_path)
-
-# initialize Flask-Login
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = "show_login_form"
-
-# user loader
-@login_manager.user_loader
-def load_user(user_id):
-    try:
-        return db.session.get(User, int(user_id))
-    except Exception:
-        return None
 
 # load the instance config
 app.config.from_pyfile('config.py', silent=True)
@@ -358,9 +343,13 @@ def change_password():
 
 
 @app.route("/logout")
-@login_required
 def logout():
-    logout_user()
+    if 'email' not in session:
+        flash("Please log in to the application.")
+        return redirect(url_for('show_login_form'))
+
+    # remove the email from the session
+    session.pop('email', None)
     return redirect(url_for("login"))
 
 # these lines indicates that we are in  "development mode"

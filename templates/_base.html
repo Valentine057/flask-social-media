@@ -18,23 +18,14 @@
             {% block profile_items %}
             {% if current_user %}
                 <div class="nav-dropdown" id="accountDropdown">
-                {% if avatar_url %}
-                    <img src="{{ avatar_url }}" alt="avatar" class="nav-avatar">
-                {% else %}
-                    <span class="nav-initial">{{ current_user.first_name[:1] | upper }}</span>
-                {% endif %}
-                    <button type="button" class="dropdown-button header-text" id="navToggle" aria-haspopup="true" aria-expanded="false">
+                    <button type="button" class="dropdown-button header-button" id="navToggle" aria-haspopup="true" aria-expanded="false">
                         <span>{{ current_user.first_name | capitalize }}</span>
                         <span class="nav-caret">&#9660;</span>
                     </button>
 
                     <div class="dropdown-menu" id="navMenu" role="menu" aria-hidden="true">
                         <a class="dropdown-item" href="{{ url_for('show_profile') }}">Profile</a>
-
-                    <!-- Sign out uses POST to clear session -->
-                    <form method="post" action="{{ url_for('logout') }}" class="dropdown-item form-inline">
-                        <button type="submit" class="signout-btn">Sign Out</button>
-                    </form>
+                        <a class="dropdown-item" href="#" id="logoutButton">Sign out</a>
                     </div>
                 </div>
             {% endif %}
