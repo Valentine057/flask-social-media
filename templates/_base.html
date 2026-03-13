@@ -6,6 +6,7 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     </head>
     <body {% block body_attrs %}{% endblock %}>
+
     {% block page_body %}
         <header id="page_header">
             <div>
@@ -32,17 +33,20 @@
             {% endblock %}
             </div>
         </header>
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div id="flash_messages">
-                    {% for m in messages %}
-                        <div class="flash">{{ m }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
-        {% block centralized_form %}
-        {% endblock %}
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div id="flash_messages">
+        {% for m in messages %}
+            <div class="flash">{{ m }}</div>
+        {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+
+    {% block centralized_form %}
+    {% endblock %}
+
     {% endblock %}
     </body>
 </html>

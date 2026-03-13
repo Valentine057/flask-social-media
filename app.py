@@ -1,14 +1,17 @@
 import os
 import glob
 
+import sqlalchemy
 from werkzeug.utils import secure_filename
 from flask import Flask, session, redirect, jsonify, render_template, request, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
 
+from flask_mail import Mail
+
 from .db import init_db, db, close_db
 from .models import User, Post, Likes
-
+from .actions import allowed_file, send_password_change_email, get_avatar_url_for_user_id, send_signup_email
 
 full_project_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -18,6 +21,9 @@ app = Flask(__name__, instance_path=full_project_path)
 # load the instance config
 app.config.from_pyfile('config.py', silent=True)
 app.app_context()
+
+# Configure Flask-Mail (replace with env vars in production)
+mail = Mail(app)
 
 # ensure the instance folder exists
 os.makedirs(app.instance_path, exist_ok=True)
@@ -31,19 +37,7 @@ app.teardown_appcontext(close_db)
 
 # --- ADD: Avatar configuration (file-based avatars; no DB changes) ---
 AVATAR_FOLDER = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'static', 'images', 'avatars')
-ALLOWED_EXT = {'png', 'jpg', 'jpeg', 'gif'}
 os.makedirs(AVATAR_FOLDER, exist_ok=True)
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXT
-
-def get_avatar_url_for_user_id(uid):
-    for ext in ALLOWED_EXT:
-        candidate = os.path.join(AVATAR_FOLDER, f"user_{uid}.{ext}")
-        if os.path.exists(candidate):
-            return url_for('static', filename=f"images/avatars/user_{uid}.{ext}")
-    return None
-# --- END ADD ---
 
 
 @app.route('/')
@@ -71,6 +65,11 @@ def index():
     return render_template('index.html', current_user=user, all_posts=posts, likes=like_counts)
 
 
+@app.route('/sign-up', methods=['GET'])
+def show_sign_up_form():
+    return render_template('sign-up.html')
+
+
 @app.route('/sign-up', methods=['POST'])
 def sign_up():
     user = User(
@@ -96,12 +95,17 @@ def sign_up():
         try:       
             db.session.add(user)
             db.session.commit()
-        except sqlalchemy.exc.IntegrityError: 
-            error= "This email already exists"
+        except sqlalchemy.exc.IntegrityError:
+            error = "This email already exists"
         else:
+            # send email notification
+            send_signup_email(mail, user.email, user.first_name)
+            flash('Please login with your new password', category='success')
+            
             return redirect(url_for('show_login_form'))
-    
+
     return error, 400
+
 
 @app.post('/login')
 def login():
@@ -124,11 +128,6 @@ def login():
     else:
         flash(error)
         return redirect(url_for('show_login_form'))
-
-
-@app.route('/sign-up', methods=['GET'])
-def show_sign_up_form():
-    return render_template('sign-up.html')
 
 
 @app.get('/login')
@@ -164,7 +163,7 @@ def show_profile():
     user = db.session.execute(db.select(User).filter_by(email=session['email'])).scalar_one()
 
     # compute avatar url (file-based avatar) and load user's posts for timeline
-    avatar_url = get_avatar_url_for_user_id(user.id)
+    avatar_url = get_avatar_url_for_user_id(AVATAR_FOLDER, user.id)
     posts = None
     try:
         posts = db.session.execute(db.select(Post).filter_by(user_id=user.id).order_by(Post.created_at.desc())).scalars().all()
@@ -338,7 +337,10 @@ def change_password():
     db.session.add(user)
     db.session.commit()
 
+    # send email notification
+    send_password_change_email(mail, user.email, user.first_name)
     flash("Password changed successfully.")
+    
     return redirect(url_for('show_profile'))
 
 
