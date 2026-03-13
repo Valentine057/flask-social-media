@@ -69,6 +69,8 @@ class Likes(db.Model):
         self.user_id= user_id
         self.post_id= post_id
 
+    
+
 
 class View(Table):
     is_view = True

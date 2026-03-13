@@ -13,33 +13,33 @@
             <a href="{{ url_for('show_login_form') }}">Login</a>
         </button>
     {% endif %}
+    <div>
+        <br><p>cvmxckmkcvm</p>
+    </div>
 {% endblock %}
 
 {% block page_body %}
 {{ super() }}
 {% if current_user %}
-<input type="text" id="search" placeholder="Search username">
-<button id="searchBtn">Search</button>
+<!-- <input type="text" id="search" placeholder="Search name">
+<button id="searchBtn">Search</button> -->
 
 <main id="posts_container">
-    <form action="/create-post" method="post">
-        <textarea id="post_caption" name="postCaption" rows="3" cols="50">
-            Create a new post
-        </textarea>
-
-        <input type="submit" id="post_button" value="Post">
+    <form action="/create-post" method="post" id="caption">
+        <textarea id="post_caption" name="postCaption" rows="3" cols="50" placeholder="Create a new post"></textarea>
+        <button type="submit" id="post_button" value="Post"><svg height="50px" width="50px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 243.066 243.066" xml:space="preserve" fill="#858585" stroke="#858585" transform="rotate(45)" stroke-width="1.458396"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <polygon style="fill:#3fd73c;" points="48.269,144.983 0.635,97.344 229.56,0 "></polygon> <polygon style="fill:#3fd73c;" points="178.574,56.053 50.172,184.448 53.466,156.099 "></polygon> <polygon style="fill:#3fd73c;" points="57.983,193.518 186.378,65.128 86.332,190.224 "></polygon> <polygon style="fill:#3fd73c;" points="97.454,195.427 242.431,14.136 145.087,243.066 "></polygon> </g> </g></svg></button>
     </form>
 
     <div id="post_list_container">
         {% for post in all_posts %}
         <div class="post_card">
             <div class="post_card_banner">
-                <span>{{ post["user"]["first_name"] | capitalize }}&nbsp;{{ post["user"]["last_name"] | capitalize }}</span>
-                <span>{{ post["created_at"].strftime("%Y-%m-%d") }}</span>
-            </div>
+                <span>{{ post["user"]["first_name"] | capitalize }}&nbsp;{{ post["user"]["last_name"] | capitalize }}</span> <br>
+                <span>{{ post["created_at"].strftime("%Y-%m-%d") }}</span><br>
+            </div><br>
             <div class="post_card_body">
                 <p>{{ post["caption"] }}</p>
-            </div>
+            </div><br>
             <div class="post_card_footer">
                 <button class="like-button" data-post-id="{{ post['id'] }}" aria-label="Like post">&#x1F497;</button>
                 <span class="likes-text"><span class="likes-count" id="likes-{{ post['id'] }}">{{ likes[loop.index0] | int }}</span> likes, {{ post["views"] }} views</span>
@@ -85,6 +85,8 @@ document.addEventListener('DOMContentLoaded', function () {
     let page=2;
     let loading= false;
 
+
+
     async function loadPosts() {
         if (loading) return;
         loading= true;
@@ -93,6 +95,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const data = await response.json();
 
         const feed = document.getElementById("post_list_container");
+        const heartSymbol = '\u{1F497}';
+
 
         data.forEach(post => {
             const div = document.createElement("div");
@@ -101,10 +105,10 @@ document.addEventListener('DOMContentLoaded', function () {
             banner.classList.add("post_card_banner");
             div.appendChild(banner);
             const firstNameSpan = document.createElement("span");
-            firstNameSpan.innerText = post.firstName + "&nbsp;" + post.lastName
+            firstNameSpan.innerText = post.firstName + "\u00A0" + post.lastName
             banner.appendChild(firstNameSpan);
             const createdAtSpan = document.createElement("span");
-            createdAtSpan.innerText = post.createdAt;
+            createdAtSpan.innerText = "\u00A0" + post.createdAt;
             // altenative to time format
             // const time =new Date(post.created_at);
             // createdAtSpan.innerText = `${time.getFullYear()}-${time.getMonth()}-${time.getDay()}`
@@ -120,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function () {
             div.appendChild(postCardFooter);
             const button = document.createElement("button");
             button.classList.add("like-button");
-            button.innerText = "&#x1F497;";
+            button.innerText = heartSymbol;
             button.addEventListener('click', onLikeClick);
             const buttonPostId = document.createAttribute("data-post-id");
             buttonPostId.value = post.id;
@@ -146,39 +150,16 @@ document.addEventListener('DOMContentLoaded', function () {
         
     }
 
+
+
     window.addEventListener("scroll", () => {
         if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
-            loadPosts();
+            setTimeout(loadPosts, 3000);
         }
     });
 </script>
 {% endif %}
 {% endblock %}
-
-<script>
-    function likePost(postId) {
-    fetch("/like", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            user_id: userId,
-            post_id: postId
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-
-        document.getElementById("like-count").innerText = data.total_likes;
-
-        if (data.liked) {
-            document.getElementById("like-btn").innerText = "❤️ Liked";
-            document.getElementById("like-btn").style.color = "red";
-        }
-    });
-}
-</script>
 
 <script>
     const feed = document.getElementById("post_list_container");

@@ -166,6 +166,7 @@ def like_post(post_id):
 
     return jsonify({"id": post.id, "likes": likes})
 
+
 @app.route('/posts')
 def get_posts():
 
