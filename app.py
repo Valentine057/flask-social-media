@@ -35,7 +35,10 @@ def index():
     
     # If the user is logged in
     if "email" in session:
-        user = db.session.execute(db.select(User).filter_by(email=session["email"])).scalar_one()
+        user = db.session.execute(db.select(User).filter_by(email=session["email"])).scalar_one_or_none()
+        if user is None:
+            session.pop("email", None)
+            return render_template('index.html', current_user=None, all_posts=None, likes=None)
         # This is another way to query a user
         # user= User.query.filter(User.email == session["email"]).first()
 
@@ -47,7 +50,7 @@ def index():
         for post_result in posts_result:
             post, like_count = post_result
             posts.append(post)
-            like_counts.append(like_count)
+            like_counts.append(like_count or 0)
 
     return render_template('index.html', current_user=user, all_posts=posts, likes=like_counts)
 
@@ -78,6 +81,7 @@ def sign_up():
             db.session.add(user)
             db.session.commit()
         except sqlalchemy.exc.IntegrityError: 
+            db.session.rollback()
             error= "This email already exists"
         else:
             return redirect(url_for('show_login_form'))
@@ -90,11 +94,11 @@ def login():
     password= request.form['password']
     error= None
 
-    user = db.session.execute(db.select(User).filter_by(email=email)).scalar_one()
+    user = db.session.execute(db.select(User).filter_by(email=email)).scalar_one_or_none()
 
     if user is None:
         error= "incorrect email"
-    elif not check_password_hash(user["password"], password):
+    elif not check_password_hash(user.password, password):
         error= "password don't match"
     
     if error is None:
@@ -121,10 +125,13 @@ def create_post():
     user = None
     
     if 'email' in session:
-        user = db.session.execute(db.select(User).filter_by(email=session['email'])).scalar_one()
-        post = Post(user.id, caption)
-        db.session.add(post)
-        db.session.commit()
+        user = db.session.execute(db.select(User).filter_by(email=session['email'])).scalar_one_or_none()
+        if user is None:
+            error = 'User not logged in'
+        else:
+            post = Post(user.id, caption)
+            db.session.add(post)
+            db.session.commit()
     else:
         error = 'User not logged in'
  
@@ -146,24 +153,51 @@ def like_post(post_id):
     if post is None:
         return jsonify({"error": "Post not found"}), 404
 
-    user = None
-    if "email" in session:
-        user = db.session.execute(db.select(User).filter_by(email=session["email"])).scalar_one()
-    else:
-        return jsonify({"error": "Log in to like a post"}), 404
+    if "email" not in session:
+        return jsonify({"error": "Log in to like a post"}), 401
 
-    # Ensure likes is an int and increment
+    user = db.session.execute(db.select(User).filter_by(email=session["email"])).scalar_one_or_none()
+    if user is None:
+        return jsonify({"error": "Log in to like a post"}), 401
+
     new_like = Likes(user.id, post_id)
-    db.session.add(new_like)
-    db.session.commit()
+    try:
+        db.session.add(new_like)
+        db.session.commit()
+    except sqlalchemy.exc.IntegrityError:
+        db.session.rollback()
 
     likes = db.session.execute(db.select(func.count()).select_from(Likes).filter_by(post_id=post.id)).scalar_one()
 
     return jsonify({"id": post.id, "likes": likes})
 
 
+@app.post('/post/<int:post_id>/view')
+def record_post_view(post_id):
+    """API: Increment views for a post and return the new view count.
+
+    Returns JSON: {"id": <post_id>, "views": <new_count>} or 404 if not found.
+    The same session only increments a post once.
+    """
+    post = db.session.execute(db.select(Post).filter_by(id=post_id)).scalar_one_or_none()
+    if post is None:
+        return jsonify({"error": "Post not found"}), 404
+
+    viewed_posts = session.get("viewed_posts", [])
+    if post_id in viewed_posts:
+        return jsonify({"id": post.id, "views": post.views})
+
+    post.views = (post.views or 0) + 1
+    db.session.commit()
+
+    viewed_posts.append(post_id)
+    session["viewed_posts"] = viewed_posts
+
+    return jsonify({"id": post.id, "views": post.views})
+
+
 # these lines indicates that we are in  "development mode"
 # they will only execute if we run the app by executing this file directly
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
-    
+
