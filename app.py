@@ -160,12 +160,17 @@ def like_post(post_id):
     if user is None:
         return jsonify({"error": "Log in to like a post"}), 401
 
-    new_like = Likes(user.id, post_id)
-    try:
-        db.session.add(new_like)
-        db.session.commit()
-    except sqlalchemy.exc.IntegrityError:
-        db.session.rollback()
+    existing_like = db.session.execute(
+        db.select(Likes).filter_by(user_id=user.id, post_id=post_id)
+    ).scalar_one_or_none()
+
+    if existing_like is None:
+        new_like = Likes(user.id, post_id)
+        try:
+            db.session.add(new_like)
+            db.session.commit()
+        except sqlalchemy.exc.IntegrityError:
+            db.session.rollback()
 
     likes = db.session.execute(db.select(func.count()).select_from(Likes).filter_by(post_id=post.id)).scalar_one()
 
@@ -183,15 +188,8 @@ def record_post_view(post_id):
     if post is None:
         return jsonify({"error": "Post not found"}), 404
 
-    viewed_posts = session.get("viewed_posts", [])
-    if post_id in viewed_posts:
-        return jsonify({"id": post.id, "views": post.views})
-
     post.views = (post.views or 0) + 1
     db.session.commit()
-
-    viewed_posts.append(post_id)
-    session["viewed_posts"] = viewed_posts
 
     return jsonify({"id": post.id, "views": post.views})
 
@@ -200,4 +198,3 @@ def record_post_view(post_id):
 # they will only execute if we run the app by executing this file directly
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
-
