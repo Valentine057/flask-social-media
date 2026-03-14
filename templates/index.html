@@ -9,15 +9,13 @@
         <img id="main-image" src="" style="display: none;">
 
         <div class="video-overlay-info">
-            <h3>@{{ current_user.first_name if current_user else '' }}</h3>
-            <p id="status-text">#ClassProject #new</p>
+            <h3>@{{ current_user.first_name if current_user else 'Guest' }}</h3>
+            <p id="status-text">#ClassProject #Flask #Coding</p>
         </div>
     </div>
 
-    <div id="comment-panel" class="comment-panel" style="display: none;">
-    <div class="comment-header">Comments</div>
-    <div id="comment-list" class="comment-list"></div>
-    <input type="text" id="comment-input" placeholder="Add a comment...">
+    <button id="upload-btn">➕ Post</button>
+    <input type="file" id="file-selector" style="display: none;" accept="video/*,image/*">
 </div>
 
 <script src="{{ url_for('static', filename='script.js') }}"></script>
