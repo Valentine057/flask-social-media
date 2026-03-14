@@ -20,7 +20,7 @@ fileSelector.addEventListener('change', async (e) => {
     const data = await response.json();
 
     if (response.ok) {
-        // Check if the file is a video or an image
+        
         if (file.type.startsWith('video/')) {
             imageDisplay.style.display = "none";
             videoPlayer.style.display = "block";

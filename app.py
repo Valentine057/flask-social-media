@@ -3,7 +3,6 @@ from flask import Flask, request, jsonify, render_template, url_for
 
 app = Flask(__name__)
 
-# This creates a folder named 'uploads' inside your 'static' folder
 UPLOAD_FOLDER = 'static/uploads'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -24,11 +23,10 @@ def upload_file():
         return jsonify({"error": "No selected file"}), 400
     
     try:
-        # Save the file to your local static/uploads folder
+        
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
         file.save(file_path)
-        
-        # URL for the browser to find the file
+
         url = url_for('static', filename='uploads/' + file.filename)
         
         return jsonify({"message": "Success", "url": url, "filename": file.filename})

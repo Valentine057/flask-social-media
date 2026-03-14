@@ -1,5 +1,5 @@
 body {
-    background-color: #000; /* TikTok is always dark */
+    background-color: #000;
     color: white;
     margin: 0;
     font-family: 'Helvetica Neue', sans-serif;
@@ -67,33 +67,4 @@ body {
 
 #upload-btn:hover {
     transform: scale(1.05);
-}
-
-.comment-panel {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    max-width: 450px;
-    height: 40%;
-    background: #222;
-    border-radius: 20px 20px 0 0;
-    padding: 20px;
-    z-index: 200;
-}
-
-.heart-icon {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    font-size: 5rem;
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.5);
-    transition: 0.3s;
-    pointer-events: none;
-}
-
-/* Class to trigger heart animation */
-.heart-animate {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
 }
