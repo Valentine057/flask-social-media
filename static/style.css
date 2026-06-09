@@ -53,7 +53,7 @@ input {
     border: none;
 }
 
-.header_button {
+.header-button {
     background-color: #785238;
     padding: 3px 20px;
     height: 30px;
@@ -63,12 +63,12 @@ input {
     border: none;
 }
 
-.header_button a {
+.header-button a {
     text-decoration: none;
     color: white;
 }
 
-.header_text {
+.header-text {
     padding: 3px 20px;
     height: 30px;
     margin: 15px;
@@ -82,6 +82,65 @@ input {
     height: 30vh;
     border-radius: 20px;
     margin-top: 30vh;
+}
+
+/* Dropdown (hover to open) */
+.nav-dropdown {
+    float: left;
+    overflow: hidden;
+}
+
+.nav-dropdown .dropdown-button {
+    border: none;
+    outline: none;
+}
+
+/* Add a blue background color to navbar links on hover */
+.nav-dropdown:hover .dropdown-button {
+    background-color: #6aa0ff;
+}
+
+.nav-caret {
+    font-size: 70%;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: #f9f9f9;
+    min-width: 140px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    padding: 8px;
+    border-radius: 6px;
+    z-index: 50;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 8px 10px;
+    color: #222;
+    text-decoration: none;
+    border-radius: 4px;
+    margin: 4px 0;
+    background: transparent;
+    text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.dropdown-menu a:hover {
+    background-color: #eee;
+}
+
+.nav-dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+/* style logout button inside dropdown */
+#logoutButton {
+    font-weight: 600;
+    color: #c0392b;
 }
 
 
@@ -213,4 +272,264 @@ textarea {
 
 .likes-text {
     color: rgb(255, 255, 255);
+}
+
+/* Flash message styling */
+#flash_messages {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 900px;
+    margin: 10px auto;
+}
+
+.flash {
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+}
+
+/* Avatar / profile styles (append) */
+.profile-page {
+    max-width: 980px;
+    margin: 18px auto;
+    padding: 0 16px;
+}
+
+.profile_card {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+    background: rgba(0, 0, 0, 0.35);
+    padding: 16px;
+    border-radius: 8px;
+    color: #fff;
+}
+
+.profile_info {
+    max-width: 700px;
+}
+
+.profile-avatar {
+    width: 112px;
+    height: 112px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ddd;
+    border: 4px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    margin-bottom: 12px;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.avatar-text {
+    font-size: 40px;
+    font-weight: 700;
+    color: #222;
+}
+
+.profile_card p,
+.profile_card strong {
+    color: #fff;
+}
+
+.profile_card input[type="file"] {
+    margin-top: 8px;
+    display: block;
+    color: #fff;
+}
+
+/* Profile / auth improvements */
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 16px;
+    box-sizing: border-box;
+}
+
+/* Auth card */
+.auth-page .auth-card {
+    max-width: 420px;
+    margin: 40px auto;
+    padding: 20px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.95);
+    color: #222;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+}
+
+.auth-form label {
+    display: block;
+    margin: 8px 0 4px;
+    font-weight: 600;
+    color: #333;
+}
+
+.auth-form input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 8px;
+}
+
+/* Profile hero */
+.profile-hero {
+    position: relative;
+    background: linear-gradient(135deg, #4267B2 0%, #6aa0ff 100%);
+    color: #fff;
+    padding-bottom: 56px;
+}
+
+.profile-cover {
+    height: 140px;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.profile-hero-inner {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    padding: 12px 0;
+    margin-top: -56px;
+}
+
+/* Avatar */
+.profile-avatar {
+    width: 112px;
+    height: 112px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: 4px solid #fff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.avatar-text {
+    font-size: 40px;
+    font-weight: 700;
+    color: #2b4d85;
+}
+
+/* Meta */
+.profile-meta {
+    flex: 1;
+}
+
+.profile-name {
+    margin: 0;
+    font-size: 24px;
+}
+
+.profile-sub {
+    margin: 2px 0 0;
+    font-size: 13px;
+    opacity: 0.95;
+}
+
+/* Layout */
+.profile-content {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 20px;
+    margin-top: 18px;
+}
+
+.card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 6px 18px rgba(20, 20, 30, 0.05);
+    color: #222;
+}
+
+.stats-list {
+    list-style: none;
+    display: flex;
+    gap: 10px;
+    padding: 12px;
+    margin: 0;
+    justify-content: space-between;
+}
+
+.stats-list li {
+    flex: 1;
+    border-right: 1px solid #eee;
+    padding: 6px 8px;
+}
+
+.stats-list li:last-child {
+    border-right: none;
+}
+
+/* Edit profile layout */
+.profile-edit-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 18px;
+    align-items: start;
+}
+
+.edit-form input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    box-sizing: border-box;
+}
+
+.form-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+}
+
+/* Small screens */
+@media (max-width:880px) {
+    .profile-content {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-edit-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-hero-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-top: -44px;
+    }
+}
+
+@media (max-width:720px) {
+    .profile_card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .profile_info {
+        max-width: 100%;
+    }
 }
