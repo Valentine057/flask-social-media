@@ -3,39 +3,39 @@
 {% block page_title %}Welcome{% endblock %}
 
 {% block header_items %}
-{% if not current_user %}
-    <button class="header-button">
-        <a href="{{ url_for('show_sign_up_form') }}">Sign up</a>
-    </button>
-    <button class="header-button">
-        <a href="{{ url_for('show_login_form') }}">Login</a>
-    </button>
-{% endif %}
+    {% if not current_user %}
+        <button class="header-button">
+            <a href="{{ url_for('show_sign_up_form') }}">Sign up</a>
+        </button>
+        <button class="header-button">
+            <a href="{{ url_for('show_login_form') }}">Login</a>
+        </button>
+    {% endif %}
 {% endblock %}
 
 {% block page_body %}
 {{ super() }}
 
 {% if current_user %}
-<main id="posts_container">
-    <form action="/create-post" method="post">
-        <textarea id="post_caption" name="postCaption" rows="3" cols="50">
-            Create a new post
-        </textarea>
+<!-- <input type="text" id="search" placeholder="Search name">
+<button id="searchBtn">Search</button> -->
 
-        <input type="submit" id="post_button" value="Post">
+<main id="posts_container">
+    <form action="/create-post" method="post" id="caption">
+        <textarea id="post_caption" name="postCaption" rows="3" cols="50" placeholder="Create a new post"></textarea>
+        <button type="submit" id="post_button" value="Post"><svg height="50px" width="50px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 243.066 243.066" xml:space="preserve" fill="#858585" stroke="#858585" transform="rotate(45)" stroke-width="1.458396"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <polygon style="fill:#3fd73c;" points="48.269,144.983 0.635,97.344 229.56,0 "></polygon> <polygon style="fill:#3fd73c;" points="178.574,56.053 50.172,184.448 53.466,156.099 "></polygon> <polygon style="fill:#3fd73c;" points="57.983,193.518 186.378,65.128 86.332,190.224 "></polygon> <polygon style="fill:#3fd73c;" points="97.454,195.427 242.431,14.136 145.087,243.066 "></polygon> </g> </g></svg></button>
     </form>
 
     <div id="post_list_container">
         {% for post in all_posts %}
         <div class="post_card" data-post-id="{{ post.id }}">
             <div class="post_card_banner">
-                <span>{{ post.user.first_name | capitalize }}&nbsp;{{ post.user.last_name | capitalize }}</span>
-                <span>{{ post.created_at.strftime("%Y-%m-%d") }}</span>
-            </div>
+                <span>{{ post["user"]["first_name"] | capitalize }}&nbsp;{{ post["user"]["last_name"] | capitalize }}</span> <br>
+                <span>{{ post["created_at"].strftime("%Y-%m-%d") }}</span><br>
+            </div><br>
             <div class="post_card_body">
-                <p>{{ post.caption }}</p>
-            </div>
+                <p>{{ post["caption"] }}</p>
+            </div><br>
             <div class="post_card_footer">
                 <button class="like-button" data-post-id="{{ post.id }}" aria-label="Like post">&#x1F497;</button>
                 <span class="likes-text"><span class="likes-count" id="likes-{{ post.id }}">{{ likes[loop.index0] | int }}</span> likes, <span class="views-count" id="views-{{ post.id }}">{{ post.views | int }} views</span></span>
@@ -45,37 +45,139 @@
             <p>No posts have been made yet.</p>
         {% endfor %}
     </div>
+    <div id="loading">loading...</div>
 </main>
 
 <script>
+function onLikeClick(e) {
+    const btn = e.currentTarget;
+    const postId = btn.getAttribute('data-post-id');
+    if (!postId) return;
+
+    // simple GET request to the like endpoint; update the count on success
+    fetch(`/api/post/${postId}/like`)
+        .then(res => res.json().then(data => ({status: res.status, body: data})))
+        .then(({status, body}) => {
+            if (status === 200 && body && body.likes !== undefined) {
+                const el = document.getElementById(`likes-${postId}`);
+                if (el) el.textContent = body.likes;
+                // give visual feedback
+                btn.classList.add('liked');
+                setTimeout(() => btn.classList.remove('liked'), 500);
+            } else {
+                console.warn('Like failed', body);
+            }
+        }).catch(err => console.error('Error liking post', err));
+}
+
 // Attach click handlers to like buttons and call the backend API to increment likes.
 document.addEventListener('DOMContentLoaded', function () {
-    function onLikeClick(e) {
-        const btn = e.currentTarget;
-        const postId = btn.getAttribute('data-post-id');
-        if (!postId) return;
-
-        // simple GET request to the like endpoint; update the count on success
-        fetch(`/api/post/${postId}/like`)
-            .then(res => res.json().then(data => ({status: res.status, body: data})))
-            .then(({status, body}) => {
-                if (status === 200 && body && body.likes !== undefined) {
-                    const el = document.getElementById(`likes-${postId}`);
-                    if (el) el.textContent = body.likes;
-                    // give visual feedback
-                    btn.classList.add('liked');
-                    setTimeout(() => btn.classList.remove('liked'), 500);
-                } else {
-                    console.warn('Like failed', body);
-                }
-            }).catch(err => console.error('Error liking post', err));
-    }
-
     const buttons = document.querySelectorAll('.like-button');
     buttons.forEach(b => b.addEventListener('click', onLikeClick));
 });
 </script>
 
+<script>
+    let page=2;
+    let loading= false;
+
+
+
+    async function loadPosts() {
+        if (loading) return;
+        loading= true;
+
+        const response = await fetch(`/posts?page=${page}`);
+        const data = await response.json();
+
+        const feed = document.getElementById("post_list_container");
+        const heartSymbol = '\u{1F497}';
+
+
+        data.forEach(post => {
+            const div = document.createElement("div");
+            div.classList.add("post_card");
+            const banner = document.createElement("div");
+            banner.classList.add("post_card_banner");
+            div.appendChild(banner);
+            const firstNameSpan = document.createElement("span");
+            firstNameSpan.innerText = post.firstName + "\u00A0" + post.lastName
+            banner.appendChild(firstNameSpan);
+            const createdAtSpan = document.createElement("span");
+            createdAtSpan.innerText = "\u00A0" + post.createdAt;
+            // altenative to time format
+            // const time =new Date(post.created_at);
+            // createdAtSpan.innerText = `${time.getFullYear()}-${time.getMonth()}-${time.getDay()}`
+            banner.appendChild(createdAtSpan);
+            const postCardBody =document.createElement("div");
+            postCardBody.classList.add("post_card_body");
+            div.appendChild(postCardBody);
+            const caption= document.createElement("p");
+            caption.innerText = post.caption;
+            postCardBody.appendChild(caption);
+            const postCardFooter = document.createElement("div");
+            postCardFooter.classList.add("post_card_footer");
+            div.appendChild(postCardFooter);
+            const button = document.createElement("button");
+            button.classList.add("like-button");
+            button.innerText = heartSymbol;
+            button.addEventListener('click', onLikeClick);
+            const buttonPostId = document.createAttribute("data-post-id");
+            buttonPostId.value = post.id;
+            button.setAttributeNode(buttonPostId);
+            const buttonAriaLabel = document.createAttribute("aria-label");
+            buttonAriaLabel.value = "Like post";
+            postCardFooter.appendChild(button);
+            const likesText = document.createElement("span");
+            likesText.classList.add("likes-text");
+            const likesCount = document.createElement("span");
+            likesText.appendChild(likesCount);
+            likesCount.classList.add("likes-count");
+            likesCount.id = `likes-${post.id}`;
+            likesCount.innerText = post.likes;
+            likesText.append(document.createTextNode(` likes, ${post.views} views`));
+            postCardFooter.appendChild(likesText);
+            
+            feed.appendChild(div);
+        });
+
+        page++;
+        loading= false;
+        
+    }
+
+
+
+    window.addEventListener("scroll", () => {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+            setTimeout(loadPosts, 3000);
+        }
+    });
+</script>
+
 <script src="{{ url_for('static', filename='js/post-views.js') }}"></script>
 {% endif %}
 {% endblock %}
+
+<script>
+    const feed = document.getElementById("post_list_container");
+    document.getElementById("searchBtn")
+    .addEventListener("click", function() {
+
+    let username = document.getElementById("searchInput").value;
+
+    fetch(`/search?username=${User.first_name}`)
+        .then(response => response.json())
+        .then(data => {
+
+            let feed = document.getElementById("feed");
+            feed.innerHTML = "";  
+
+            data.forEach(post => {
+                let div = document.createElement("div");
+                div.innerHTML = `<p>${post.content}</p>`;
+                feed.appendChild(div);
+            });
+        });
+});
+</script>

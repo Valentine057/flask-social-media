@@ -3,46 +3,39 @@
 {% block page_title %}Sign up{% endblock %}
 
 {% block header_items %}
-  <button class="header-button">
-    <a href="{{ url_for('show_login_form') }}">Login</a>
-  </button>
+    <button class="header_button">
+        <a href="{{ url_for('show_login_form') }}">Login</a>
+    </button>
 {% endblock %}
 
-{% block page_body %}
-{{ super() }}
-
-<main class="auth-page container">
-  <div class="card auth-card">
-    <h2>Create an account</h2>
-
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <div id="flash_messages">
-          {% for m in messages %}
-            <div class="flash">{{ m }}</div>
-          {% endfor %}
+{% block centralized_form %}
+<div id="centralized_form_container">
+<div id="Sign">
+    <form action="/sign-up" method="post">
+        <div class="sign_class1">
+        <div id="sign1">
+            <label for="firstname">First Name</label><br>
+            <input type="text" id="firstName color" name="firstName" required><br>
         </div>
-      {% endif %}
-    {% endwith %}
+        <div id="sign2">
+            <label for="lastname">Last Name</label><br>
+            <input type="text" id="lastName color" name="lastName"><br>
+        </div>
+        </div>
+        <div class="sign_class2">
+            <div id="sign3">
+            <label for="email">Email</label><br>
+            <input type="email" id="email color" name="email"><br>
+        </div>
+        <div id="sign4">
+            <label for="password">Password</label><br>
+        <input type="password" id="password color" name="password"><br><br>
+        </div>
+        </div>
 
-    <form method="post" action="{{ url_for('sign_up') }}" class="auth-form">
-      <label for="firstName">First name</label>
-      <input id="firstName" name="firstName" type="text" required>
 
-      <label for="lastName">Last name</label>
-      <input id="lastName" name="lastName" type="text" required>
-
-      <label for="email">Email</label>
-      <input id="email" name="email" type="email" required>
-
-      <label for="password">Password</label>
-      <input id="password" name="password" type="password" required autocomplete="new-password">
-
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Sign up</button>
-        <a class="btn btn-light" href="{{ url_for('show_login_form') }}">Log in</a>
-      </div>
+        <input type="submit" id="butt1" value="Sign up">
     </form>
-  </div>
-</main>
+</div>
+</div>
 {% endblock %}

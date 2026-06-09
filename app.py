@@ -6,11 +6,12 @@ from werkzeug.utils import secure_filename
 from flask import Flask, session, redirect, jsonify, render_template, request, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
+from sqlalchemy.orm import registry
 
 from flask_mail import Mail
 
 from .db import init_db, db, close_db
-from .models import User, Post, Likes
+from .models import User, Post, Likes, views, FullPostWithLikes
 from .actions import allowed_file, send_password_change_email, get_avatar_url_for_user_id, send_signup_email
 
 full_project_path = os.path.dirname(os.path.realpath(__file__))
@@ -32,6 +33,12 @@ os.makedirs(app.instance_path, exist_ok=True)
 db.init_app(app)
 app.cli.add_command(init_db)
 app.teardown_appcontext(close_db)
+
+# register database views in the ORM
+mapper_registry = registry()
+for view in views:
+    if not hasattr(view, '_sa_class_manager'):
+        mapper_registry.map_imperatively(view, view.__view__)
 
 # Note: profile photo upload removed to avoid schema changes. Profiles store only simple fields.
 
@@ -56,7 +63,7 @@ def index():
         # user= User.query.filter(User.email == session["email"]).first()
 
         like_count_subq = db.select(func.count(Likes.id).label('likes'), Likes.post_id).group_by(Likes.post_id).subquery()
-        posts_result = db.session.execute(db.select(Post, like_count_subq.c.likes).outerjoin_from(Post, like_count_subq).order_by(Post.created_at))
+        posts_result = db.session.execute(db.select(Post, like_count_subq.c.likes).outerjoin_from(Post, like_count_subq).order_by(Post.created_at.desc()).limit(10))
 
         for post_result in posts_result:
             post, like_count = post_result
@@ -252,6 +259,42 @@ def like_post(post_id):
     likes = db.session.execute(db.select(func.count()).select_from(Likes).filter_by(post_id=post.id)).scalar_one()
 
     return jsonify({"id": post.id, "likes": likes})
+
+
+@app.route('/posts')
+def get_posts():
+
+    page = request.args.get("page", 2, type=int)
+    per_page= 10
+
+    posts= db.paginate(db.select(FullPostWithLikes).order_by(FullPostWithLikes.created_at.desc()), page=page, per_page=per_page)
+
+    return jsonify([
+        {
+            "id": post.id,
+            "createdAt": post.created_at.strftime("%Y-%m-%d"),
+            "caption": post.caption,
+            "firstName": post.first_name,
+            "lastName": post.last_name,
+            "views": post.views,
+            "likes": post.like_count
+        }
+        for post in posts
+    ])
+
+@app.route("/search")
+def search():
+    username = request.args.get("first_name")
+
+    posts = db.session.query(Post).join(User).filter(User.first_name.ilike(f"%{User.first_name}%")).order_by(Post.created_at.desc()).all()
+
+    return jsonify([
+        {
+            "id": post.id,
+            "caption": post.caption
+        }
+        for post in posts
+    ])
 
 
 @app.post('/post/<int:post_id>/view')
