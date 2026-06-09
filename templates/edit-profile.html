@@ -1,0 +1,83 @@
+{% extends '_base.html' %}
+
+{% block page_title %}Edit Profile{% endblock %}
+
+{% block page_body %}
+{{ super() }}
+<main class="edit-profile container">
+  <h2>Edit Profile</h2>
+
+  <div class="card edit-card profile-edit-grid">
+    <section class="edit-left">
+      <form method="post" action="{{ url_for('edit_profile') }}" class="edit-form">
+        <label for="firstName">First name</label>
+        <input id="firstName" name="firstName" type="text" value="{{ current_user.first_name }}" required>
+
+        <label for="lastName">Last name</label>
+        <input id="lastName" name="lastName" type="text" value="{{ current_user.last_name }}" required>
+
+        <label for="dateOfBirth">Date of birth</label>
+        <input id="dateOfBirth" name="dateOfBirth" type="date" value="{{ current_user.date_of_birth or '' }}">
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save changes</button>
+          <a class="btn btn-light" href="{{ url_for('show_profile') }}">Cancel</a>
+        </div>
+      </form>
+    </section>
+
+    <aside class="edit-right">
+      <h3>Change password</h3>
+      <form id="passwordForm" method="post" action="/profile/change-password" class="edit-form" novalidate>
+        <label for="currentPassword">Current password</label>
+        <input id="currentPassword" name="currentPassword" type="password" autocomplete="current-password" required>
+
+        <label for="newPassword">New password</label>
+        <input id="newPassword" name="newPassword" type="password" autocomplete="new-password" required>
+
+        <label for="confirmPassword">Confirm new password</label>
+        <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" required>
+
+        <p id="pwMessage" class="pw-message" style="display:none;"></p>
+
+        <div class="form-actions">
+          <button id="changePwBtn" type="submit" class="btn btn-primary">Change password</button>
+          <button type="button" id="pwCancel" class="btn btn-light">Cancel</button>
+        </div>
+      </form>
+    </aside>
+  </div>
+</main>
+
+<script>
+(function(){
+  const newPw = document.getElementById('newPassword');
+  const confirmPw = document.getElementById('confirmPassword');
+  const msg = document.getElementById('pwMessage');
+  const btn = document.getElementById('changePwBtn');
+  const pwForm = document.getElementById('passwordForm');
+  const cancel = document.getElementById('pwCancel');
+
+  function validate() {
+    if (!newPw.value && !confirmPw.value) { msg.style.display='none'; btn.disabled=false; return; }
+    if (newPw.value !== confirmPw.value) {
+      msg.textContent = 'Passwords do not match.'; msg.style.display='block'; btn.disabled = true;
+    } else if (newPw.value.length < 8) {
+      msg.textContent = 'Password must be at least 8 characters.'; msg.style.display='block'; btn.disabled = true;
+    } else { msg.style.display='none'; btn.disabled=false; }
+  }
+
+  newPw.addEventListener('input', validate);
+  confirmPw.addEventListener('input', validate);
+
+  cancel.addEventListener('click', function(){
+    newPw.value = ''; confirmPw.value = ''; document.getElementById('currentPassword').value = ''; validate();
+  });
+
+  pwForm.addEventListener('submit', function(e){
+    validate();
+    if (btn.disabled) e.preventDefault();
+  });
+})();
+</script>
+{% endblock %}
