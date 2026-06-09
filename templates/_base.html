@@ -6,17 +6,47 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     </head>
     <body {% block body_attrs %}{% endblock %}>
+
     {% block page_body %}
         <header id="page_header">
             <div>
-                <img src="{{ url_for('static', filename='images/logo.png' )}}" width="50" height="50" />
+                <a href="{{ url_for('index') }}">
+                    <img src="{{ url_for('static', filename='images/logo.png' )}}" width="50" height="50" />
+                </a>
             </div>
             <div>
-                {% block header_items %}{% endblock %}
+            {% block header_items %}{% endblock %}
+            {% block profile_items %}
+            {% if current_user %}
+                <div class="nav-dropdown" id="accountDropdown">
+                    <button type="button" class="dropdown-button header-button" id="navToggle" aria-haspopup="true" aria-expanded="false">
+                        <span>{{ current_user.first_name | capitalize }}</span>
+                        <span class="nav-caret">&#9660;</span>
+                    </button>
+
+                    <div class="dropdown-menu" id="navMenu" role="menu" aria-hidden="true">
+                        <a class="dropdown-item" href="{{ url_for('show_profile') }}">Profile</a>
+                        <a class="dropdown-item" href="#" id="logoutButton">Sign out</a>
+                    </div>
+                </div>
+            {% endif %}
+            {% endblock %}
             </div>
         </header>
-        {% block centralized_form %}
-        {% endblock %}
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div id="flash_messages">
+        {% for m in messages %}
+            <div class="flash">{{ m }}</div>
+        {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+
+    {% block centralized_form %}
+    {% endblock %}
+
     {% endblock %}
     </body>
 </html>
