@@ -28,17 +28,17 @@
 
     <div id="post_list_container">
         {% for post in all_posts %}
-        <div class="post_card">
+        <div class="post_card" data-post-id="{{ post.id }}">
             <div class="post_card_banner">
-                <span>{{ post["user"]["first_name"] | capitalize }}&nbsp;{{ post["user"]["last_name"] | capitalize }}</span>
-                <span>{{ post["created_at"].strftime("%Y-%m-%d") }}</span>
+                <span>{{ post.user.first_name | capitalize }}&nbsp;{{ post.user.last_name | capitalize }}</span>
+                <span>{{ post.created_at.strftime("%Y-%m-%d") }}</span>
             </div>
             <div class="post_card_body">
-                <p>{{ post["caption"] }}</p>
+                <p>{{ post.caption }}</p>
             </div>
             <div class="post_card_footer">
-                <button class="like-button" data-post-id="{{ post['id'] }}" aria-label="Like post">&#x1F497;</button>
-                <span class="likes-text"><span class="likes-count" id="likes-{{ post['id'] }}">{{ likes[loop.index0] | int }}</span> likes, {{ post["views"] }} views</span>
+                <button class="like-button" data-post-id="{{ post.id }}" aria-label="Like post">&#x1F497;</button>
+                <span class="likes-text"><span class="likes-count" id="likes-{{ post.id }}">{{ likes[loop.index0] | int }}</span> likes, <span class="views-count" id="views-{{ post.id }}">{{ post.views | int }} views</span></span>
             </div>
         </div>
         {% else %}
@@ -75,30 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
     buttons.forEach(b => b.addEventListener('click', onLikeClick));
 });
 </script>
+
+<script src="{{ url_for('static', filename='js/post-views.js') }}"></script>
 {% endif %}
 {% endblock %}
-
-<script>
-    function likePost(postId) {
-    fetch("/like", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            user_id: userId,
-            post_id: postId
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-
-        document.getElementById("like-count").innerText = data.total_likes;
-
-        if (data.liked) {
-            document.getElementById("like-btn").innerText = "❤️ Liked";
-            document.getElementById("like-btn").style.color = "red";
-        }
-    });
-}
-</script>
