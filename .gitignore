@@ -15,3 +15,5 @@ static/uploads/
 __pycache__/
 *.pyc
 .env
+models.py
+app.py
