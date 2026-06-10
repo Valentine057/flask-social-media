@@ -46,6 +46,14 @@ for view in views:
 AVATAR_FOLDER = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'static', 'images', 'avatars')
 os.makedirs(AVATAR_FOLDER, exist_ok=True)
 
+UPLOAD_FOLDER = 'static/uploads'
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
+
 
 @app.route('/')
 def index():
@@ -416,6 +424,23 @@ def change_password():
     
     return redirect(url_for('show_profile'))
 
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'media' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+    
+    file = request.files['media']
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+    
+    try:
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        file.save(file_path)
+        url = url_for('static', filename='uploads/' + file.filename)
+        return jsonify({"message": "Success", "url": url, "filename": file.filename})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/logout")
 def logout():

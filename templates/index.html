@@ -20,6 +20,23 @@
 <!-- <input type="text" id="search" placeholder="Search name">
 <button id="searchBtn">Search</button> -->
 
+<div class="video-page-wrapper">
+    <div class="video-card">
+        <video id="main-player" autoplay loop muted playsinline>
+            <source src="" type="video/mp4">
+        </video>
+        <img id="main-image" src="" style="display: none;">
+
+        <div class="video-overlay-info">
+            <h3>@{{ current_user.first_name if current_user else 'Guest' }}</h3>
+            <p id="status-text">#ClassProject #Flask #Coding</p>
+        </div>
+    </div>
+
+    <button id="upload-btn">➕ Post</button>
+    <input type="file" id="file-selector" style="display: none;" accept="video/*,image/*">
+</div>
+
 <main id="posts_container">
     <form action="/create-post" method="post" id="caption">
         <textarea id="post_caption" name="postCaption" rows="3" cols="50" placeholder="Create a new post"></textarea>
@@ -41,9 +58,6 @@
                 <span class="likes-text"><span class="likes-count" id="likes-{{ post.id }}">{{ likes[loop.index0] | int }}</span> likes, <span class="views-count" id="views-{{ post.id }}">{{ post.views | int }} views</span></span>
             </div>
         </div>
-        {% else %}
-            <p>No posts have been made yet.</p>
-        {% endfor %}
     </div>
     <div id="loading">loading...</div>
 </main>
@@ -156,6 +170,7 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 <script src="{{ url_for('static', filename='js/post-views.js') }}"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 {% endif %}
 {% endblock %}
 

@@ -10,3 +10,8 @@ number.txt
 python.py
 db.sqlite
 config.py
+node_modules/
+static/uploads/
+__pycache__/
+*.pyc
+.env
